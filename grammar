@@ -1,0 +1,98 @@
+input: 
+    list '\n'
+    list EOF
+    '\n'
+    EOF
+
+list: 
+    and_or { ';' and_or } [ ';' ]
+    and_or { ';' and_or } [ '&' ]
+    and_or { '&' and_or } [ ';' ]
+    and_or { '&' and_or } ['&']
+
+and_or: 
+    pipeline { '&&' { '\n' } pipeline}
+    pipeline { '||' { '\n' } pipeline}
+
+pipeline:
+    [ '!' ] command { '|' { '\n' } command}
+
+command: 
+    simple_command
+    shell_command { redirection }
+    funcdec { redirection }
+
+simple_command: 
+    { prefix }+
+    { prefix } { element }+
+
+shell_command:
+    '{' compound_list '}'
+    '(' compound_list ')'
+    rule_for
+    rule_while
+    rule_until
+    rule_case
+    rule_if
+
+funcdec:
+    WORD '(' ')' { '\n' } shell_command
+
+redirection:
+    [ IONUMBER ] '>' WORD
+    [ IONUMBER ] '<' WORD
+    [ IONUMBER ] '>>' WORD
+    [ IONUMBER ] '<<' HEREDOC
+    [ IONUMBER ] '<<-' HEREDOC
+    [ IONUMBER ] '>&' WORD
+    [ IONUMBER ] '<&' WORD
+    [ IONUMBER ] '>|' WORD
+    [ IONUMBER ] '<>' WORD
+
+prefix:
+    ASSIGNMENT_WORD
+    redirection
+
+element:
+    WORD
+    redirection
+
+signs:
+    ';'
+    '&'
+    '\n'
+    
+compound_list:
+    { '\n' } and_or { signs { '\n' } and_or } [ signs { '\n' } ]
+
+for:
+    ';'
+    { '\n' } 'in' { WORD } ';'
+    { '\n' } 'in' { WORD } '\n'
+
+rule_for:
+    For WORD [ for ] { '\n' } do_group
+
+rule_while:
+    While compound_list do_group
+
+rule_until:
+    Until compound_list do_group
+
+rule_case:
+    Case WORD { '\n' } 'in' { '\n' } [ case_clause ] Esac
+
+rule_if:
+    If compound_list Then compound_list [ else_clause ] Fi
+
+else_clause:
+    Else compound_list
+    Elif compound_list Then compound_list [ else_clause ]
+
+do_group:
+    Do compound_list Done
+
+case_clause:
+    case_item { ';;' { '\n' } case_item } [ ';;' ] { '\n' }
+
+case_item: [ '(' ] WORD { '|' WORD } ')' { '\n' } [ compound_list ]

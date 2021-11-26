@@ -1,0 +1,8 @@
+if echo ok; then echo yes; fi
+if then ok fi
+if fi
+if then
+fi
+then
+if                  echo ok;        then            echo yes            ;                               fi
+fi then
