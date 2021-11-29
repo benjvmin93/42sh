@@ -6,8 +6,8 @@
 
 enum parser_status
 {
-    PARSER_OK,                  // 0
-    PARSER_UNEXPECTED_TOKEN     // 1
+    PARSER_OK, // 0
+    PARSER_UNEXPECTED_TOKEN // 1
 };
 
 enum parser_status parse(struct ast **res, struct lexer *lexer);

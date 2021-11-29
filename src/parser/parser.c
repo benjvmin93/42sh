@@ -1,46 +1,65 @@
 #include "parser.h"
-#include "../ast/ast.h"
 
-#include <string.h>
 #include <err.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "../ast/ast.h"
 
 #define UNUSED(x) (void)(x)
 
-static enum parser_status parse_list(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_and_or(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_pipeline(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_cmd(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_simplecmd(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_shellcmd(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_funcdec(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_redirection(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_prefix(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_element(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_compoundlist(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_rulefor(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_rulewhile(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_ruleuntil(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_rulecase(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_ruleif(struct ast **res, struct lexer *lexer);
-static enum parser_status parse_else_clause(struct ast **res, struct lexer *lexer);
-//static enum parser_status parse_do_group(struct ast **res, struct lexer *lexer);
-//static enum parser_status parse_case_clause(struct ast **res, struct lexer *lexer);
-//static enum parser_status parse_case_item(struct ast **res, struct lexer *lexer);
+static enum parser_status parse_list(struct ast_node **res,
+                                     struct lexer *lexer);
+static enum parser_status parse_and_or(struct ast_node **res,
+                                       struct lexer *lexer);
+static enum parser_status parse_pipeline(struct ast_node **res,
+                                         struct lexer *lexer);
+static enum parser_status parse_cmd(struct ast_node **res, struct lexer *lexer);
+static enum parser_status parse_simplecmd(struct ast_node **res,
+                                          struct lexer *lexer);
+static enum parser_status parse_shellcmd(struct ast_node **res,
+                                         struct lexer *lexer);
+static enum parser_status parse_funcdec(struct ast_node **res,
+                                        struct lexer *lexer);
+static enum parser_status parse_redirection(struct ast_node **res,
+                                            struct lexer *lexer);
+static enum parser_status parse_prefix(struct ast_node **res,
+                                       struct lexer *lexer);
+static enum parser_status parse_element(struct ast_node **res,
+                                        struct lexer *lexer);
+static enum parser_status parse_compoundlist(struct ast_node **res,
+                                             struct lexer *lexer);
+static enum parser_status parse_rulefor(struct ast_node **res,
+                                        struct lexer *lexer);
+static enum parser_status parse_rulewhile(struct ast_node **res,
+                                          struct lexer *lexer);
+static enum parser_status parse_ruleuntil(struct ast_node **res,
+                                          struct lexer *lexer);
+static enum parser_status parse_rulecase(struct ast_node **res,
+                                         struct lexer *lexer);
+static enum parser_status parse_ruleif(struct ast_node **res,
+                                       struct lexer *lexer);
+static enum parser_status parse_else_clause(struct ast_node **res,
+                                            struct lexer *lexer);
+// static enum parser_status parse_do_group(struct ast_node **res, struct lexer
+// *lexer); static enum parser_status parse_case_clause(struct ast_node **res,
+// struct lexer *lexer); static enum parser_status parse_case_item(struct
+// ast_node **res, struct lexer *lexer);
 void linebreak_while(struct lexer *lexer);
 
 static enum parser_status handle_parse_error(enum parser_status status,
-        struct ast **res)
+                                             struct ast_node **res)
 {
     warnx("unexpected token");
-    //ast_free(*res);
+    // ast_free(*res);
     *res = NULL;
     return status;
 }
 
 void linebreak_while(struct lexer *lexer)
 {
-    //struct token *tok = lexer_peek(lexer);
+    // struct token *tok = lexer_peek(lexer);
     struct token *tok = NULL;
     while (true)
     {
@@ -48,7 +67,7 @@ void linebreak_while(struct lexer *lexer)
         if (tok->type != TOKEN_LINE_BREAK)
         {
             token_free(tok);
-            break; 
+            break;
         }
         token_free(tok);
         token_free(lexer_pop(lexer));
@@ -58,7 +77,7 @@ void linebreak_while(struct lexer *lexer)
 /**
  * input:  EOF | '\n' | list EOF | list '\n'
  */
-enum parser_status parse(struct ast **res, struct lexer *lexer)
+enum parser_status parse(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     // If we're at the end of file, there's no input
@@ -75,17 +94,28 @@ enum parser_status parse(struct ast **res, struct lexer *lexer)
     // produced ast and return the same error code
     enum parser_status status = parse_list(res, lexer);
     if (status != PARSER_OK)
+    {
+        printf("%s\n", lexer->input + lexer->pos);
         return handle_parse_error(status, res);
-
+    }
     // once parsing the expression is done, we should have
     // reached the end of file.
-    if (lexer_peek(lexer)->type == TOKEN_EOF)
+    tok = lexer_peek(lexer);
+    if (tok->type == TOKEN_EOF)
+    {
+        token_free(tok);
+        token_free(lexer_pop(lexer));
         return PARSER_OK;
-
-    if (lexer_peek(lexer)->type == TOKEN_LINE_BREAK)
+    }
+    if (tok->type == TOKEN_LINE_BREAK)
+    {
+        token_free(tok);
+        token_free(lexer_pop(lexer));
         return PARSER_OK;
-
+    }
     // if we didn't reach the end of file, it's an error
+    token_free(tok);
+    printf("%s\n", lexer->input + lexer->pos);
     return handle_parse_error(PARSER_UNEXPECTED_TOKEN, res);
 }
 
@@ -93,7 +123,7 @@ enum parser_status parse(struct ast **res, struct lexer *lexer)
  * list: and_or  ((';' | '&')  and_or)*  [';' | '&']
  */
 
-static enum parser_status parse_list(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_list(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     enum parser_status status = parse_and_or(res, lexer);
@@ -114,15 +144,18 @@ static enum parser_status parse_list(struct ast **res, struct lexer *lexer)
 
         // parse the stuff at the right
         if ((status = parse_and_or(res, lexer)) != PARSER_OK)
-            return status;
+            break;
     }
+
+    return PARSER_OK;
 }
 
 /**
- * and_or: and_or  (('&&' | '||') ('\n')* pipeline)* 
+ * and_or: and_or  (('&&' | '||') ('\n')* pipeline)*
  */
 
-static enum parser_status parse_and_or(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_and_or(struct ast_node **res,
+                                       struct lexer *lexer)
 {
     UNUSED(res);
     enum parser_status status = parse_pipeline(res, lexer);
@@ -159,10 +192,11 @@ static enum parser_status parse_and_or(struct ast **res, struct lexer *lexer)
  * pipeline: ['!'] command ('|' ('\n')* command)*
  */
 
-static enum parser_status parse_pipeline(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_pipeline(struct ast_node **res,
+                                         struct lexer *lexer)
 {
     UNUSED(res);
-    //TODO add not !
+    // TODO add not !
     enum parser_status status = parse_cmd(res, lexer);
     if (status != PARSER_OK)
         return status;
@@ -197,7 +231,7 @@ static enum parser_status parse_pipeline(struct ast **res, struct lexer *lexer)
  * command: simplecmd | shellcmd (redirection)* | funcdec (redirection)*
  */
 
-static enum parser_status parse_cmd(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_cmd(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     enum parser_status status = parse_simplecmd(res, lexer);
@@ -236,13 +270,18 @@ static enum parser_status parse_cmd(struct ast **res, struct lexer *lexer)
 /**
  * simplemcd: (prefix)+ | (prefix)* (element)+
  */
-
-static enum parser_status parse_simplecmd(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_simplecmd(struct ast_node **res,
+                                          struct lexer *lexer)
 {
-    UNUSED(res);
     enum parser_status status_prefix = PARSER_UNEXPECTED_TOKEN;
     enum parser_status status;
-    while(1)
+    
+    struct ast_node *cmd = ast_new(NODE_COMMAND);
+    struct vector *vector_cmd = cmd->data.ast_cmd.cmd;
+    char *s = NULL;
+    size_t i = 0;
+
+    while (1)
     {
         status = parse_prefix(res, lexer);
         if (status_prefix == PARSER_UNEXPECTED_TOKEN && status == PARSER_OK)
@@ -250,32 +289,49 @@ static enum parser_status parse_simplecmd(struct ast **res, struct lexer *lexer)
 
         if (status != PARSER_OK)
             break;
-        token_free(lexer_pop(lexer));
+
+        s = xrealloc(s, strlen(s) + strlen(lexer->current_tok->data) + 1);
+        s = strcat(s, lexer->current_tok->data);
+        s[strlen(s)] = 0;
     }
 
+    if (!s)
+        fprintf(stderr, "Error when parsing prefix of command\n");
+    
     enum parser_status status_elt = PARSER_UNEXPECTED_TOKEN;
     while (true)
     {
         status = parse_element(res, lexer);
         if (status_elt == PARSER_UNEXPECTED_TOKEN && status == PARSER_OK)
-            status = PARSER_OK;
+            status_elt = PARSER_OK;
 
         if (status != PARSER_OK)
             break;
-        token_free(lexer_pop(lexer));
+
+        s = xrealloc(s, strlen(s) + strlen(lexer->current_tok->data) + 1);
+        s = strcat(s, lexer->current_tok->data);
+        s[strlen(s)] = 0;
     }
 
+    vector_cmd = vector_append(vector_cmd, s);
+
     if (status_prefix != PARSER_OK && status_elt != PARSER_OK)
+    {
+        vector_destroy(vector_cmd);
+        free_node(cmd);
         return PARSER_UNEXPECTED_TOKEN;
+    }
+
+
     return PARSER_OK;
 }
-
 
 /**
  * Sous foction de shellcmd pour les rules
  */
 
-static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *lexer)
+static enum parser_status parser_rules_shellcmd(struct ast_node **res,
+                                                struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
@@ -284,6 +340,7 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
         enum parser_status status = parse_rulefor(res, lexer);
         if (status == PARSER_OK)
         {
+            token_free(tok);
             token_free(lexer_pop(lexer));
             return status;
         }
@@ -294,6 +351,7 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
         enum parser_status status = parse_rulewhile(res, lexer);
         if (status == PARSER_OK)
         {
+            token_free(tok);
             token_free(lexer_pop(lexer));
             return status;
         }
@@ -304,6 +362,7 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
         enum parser_status status = parse_ruleuntil(res, lexer);
         if (status == PARSER_OK)
         {
+            token_free(tok);
             token_free(lexer_pop(lexer));
             return status;
         }
@@ -314,6 +373,7 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
         enum parser_status status = parse_rulecase(res, lexer);
         if (status == PARSER_OK)
         {
+            token_free(tok);
             token_free(lexer_pop(lexer));
             return status;
         }
@@ -324,6 +384,7 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
         enum parser_status status = parse_ruleif(res, lexer);
         if (status == PARSER_OK)
         {
+            token_free(tok);
             token_free(lexer_pop(lexer));
             return status;
         }
@@ -331,7 +392,6 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
 
     token_free(tok);
     return PARSER_UNEXPECTED_TOKEN;
-
 }
 
 /**
@@ -344,7 +404,8 @@ static enum parser_status parser_rules_shellcmd(struct ast **res, struct lexer *
  *      | rule_is
  */
 
-static enum parser_status parse_shellcmd(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_shellcmd(struct ast_node **res,
+                                         struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
@@ -400,7 +461,8 @@ static enum parser_status parse_shellcmd(struct ast **res, struct lexer *lexer)
  * funcdec: WORD '(' ')' ('\n')* shellcmd
  */
 
-static enum parser_status parse_funcdec(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_funcdec(struct ast_node **res,
+                                        struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
@@ -434,7 +496,7 @@ static enum parser_status parse_funcdec(struct ast **res, struct lexer *lexer)
     tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LINE_BREAK)
         linebreak_while(lexer);
-    
+
     token_free(tok);
     enum parser_status status = parse_shellcmd(res, lexer);
     if (status != PARSER_OK)
@@ -455,11 +517,12 @@ static enum parser_status parse_funcdec(struct ast **res, struct lexer *lexer)
         | [IONUMBER] '<>' WORD
  */
 
-static enum parser_status parse_redirection(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_redirection(struct ast_node **res,
+                                            struct lexer *lexer)
 {
     UNUSED(res);
     UNUSED(lexer);
-    //TODO redirection
+    // TODO redirection
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -473,14 +536,15 @@ int is_assignment_word(struct lexer *lexer)
     }
     token_free(tok);
 
-   return 0;
+    return 0;
 }
 
 /**
  * prefix: ASSIGNMENT_WORD | redirection
  */
 
-static enum parser_status parse_prefix(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_prefix(struct ast_node **res,
+                                       struct lexer *lexer)
 {
     UNUSED(res);
     if (is_assignment_word(lexer))
@@ -500,16 +564,23 @@ static enum parser_status parse_prefix(struct ast **res, struct lexer *lexer)
  * element: WORD | redirection
  */
 
-static enum parser_status parse_element(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_element(struct ast_node **res,
+                                        struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
-    if (tok->type == TOKEN_WORD)
+    if (tok->type >= TOKEN_WORD)
     {
+        token_free(tok);
         token_free(lexer_pop(lexer));
         return PARSER_OK;
     }
-    
+    /*
+    if (follow_elt(tok))    //TODO check les follow de element pour s'arreter au
+    moment ou l'on rencontre le bon token {                       // EXEMPLE: if
+    echo foo; then echo OK; elif echo bar then KO; else return 1 => WRONG SYNTAX
+    BC NO SEMICOLON BETWEEN ELIF AND THEN. token_free(tok); return PARSER_OK;
+    }*/
     token_free(tok);
     enum parser_status status = parse_redirection(res, lexer);
     if (status == PARSER_OK)
@@ -519,16 +590,17 @@ static enum parser_status parse_element(struct ast **res, struct lexer *lexer)
 }
 
 /**
- * compound_list: ('\n')* and_or ((';'|'&'|'\n') ('\n')* and_or)* [('&'|';'|'\n') ('\n')*]
+ * compound_list: ('\n')* and_or ((';'|'&'|'\n') ('\n')* and_or)*
+ * [('&'|';'|'\n') ('\n')*]
  */
 
-static enum parser_status parse_compoundlist(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_compoundlist(struct ast_node **res,
+                                             struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LINE_BREAK)
     {
-        token_free(tok);
         linebreak_while(lexer);
     }
 
@@ -537,13 +609,12 @@ static enum parser_status parse_compoundlist(struct ast **res, struct lexer *lex
     if (status != PARSER_OK)
         return status;
 
-    token_free(lexer_pop(lexer));
+    // token_free(lexer_pop(lexer));
     while (true)
     {
         tok = lexer_peek(lexer);
-        if (tok->type != TOKEN_SEMICOLON
-                && tok->type != TOKEN_LINE_BREAK
-                && tok->type != TOKEN_AND)
+        if (tok->type != TOKEN_SEMICOLON && tok->type != TOKEN_LINE_BREAK
+            && tok->type != TOKEN_AND)
             break;
 
         if (tok->type == TOKEN_LINE_BREAK)
@@ -551,46 +622,52 @@ static enum parser_status parse_compoundlist(struct ast **res, struct lexer *lex
             token_free(tok);
             linebreak_while(lexer);
         }
+        token_free(tok);
         enum parser_status status = parse_and_or(res, lexer);
         if (status != PARSER_OK)
+        {
+            token_free(lexer_pop(lexer));
             return PARSER_OK;
-
-        token_free(lexer_pop(lexer));
+        }
     }
 
     token_free(tok);
     return PARSER_OK;
 }
 
-static enum parser_status parse_rulefor(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_rulefor(struct ast_node **res,
+                                        struct lexer *lexer)
 {
     UNUSED(res);
     UNUSED(lexer);
-    //TODO rule_for
+    // TODO rule_for
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-static enum parser_status parse_rulewhile(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_rulewhile(struct ast_node **res,
+                                          struct lexer *lexer)
 {
     UNUSED(res);
     UNUSED(lexer);
-    //TODO rule_while
+    // TODO rule_while
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-static enum parser_status parse_ruleuntil(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_ruleuntil(struct ast_node **res,
+                                          struct lexer *lexer)
 {
     UNUSED(res);
     UNUSED(lexer);
-    //TODO rule_until
+    // TODO rule_until
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-static enum parser_status parse_rulecase(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_rulecase(struct ast_node **res,
+                                         struct lexer *lexer)
 {
     UNUSED(res);
     UNUSED(lexer);
-    //TODO rule_case
+    // TODO rule_case
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -598,16 +675,17 @@ static enum parser_status parse_rulecase(struct ast **res, struct lexer *lexer)
  * rule_if: If compound_list Then compound_list [else_clause] Fi
  */
 
-static enum parser_status parse_ruleif(struct ast **res, struct lexer *lexer)
+static enum parser_status parse_ruleif(struct ast_node **res,
+                                       struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);
-    if (tok->type != TOKEN_IF)
+    if (tok->type != TOKEN_IF && tok->type != TOKEN_ELIF)
     {
         token_free(tok);
         return PARSER_UNEXPECTED_TOKEN;
     }
-    
+
     token_free(tok);
     token_free(lexer_pop(lexer));
 
@@ -616,7 +694,7 @@ static enum parser_status parse_ruleif(struct ast **res, struct lexer *lexer)
         return status;
     else
     {
-        token_free(lexer_pop(lexer));
+        // token_free(lexer_pop(lexer));
         tok = lexer_peek(lexer);
         if (tok->type != TOKEN_THEN)
         {
@@ -624,34 +702,40 @@ static enum parser_status parse_ruleif(struct ast **res, struct lexer *lexer)
             return PARSER_UNEXPECTED_TOKEN;
         }
         token_free(lexer_pop(lexer));
-
+        token_free(tok);
         status = parse_compoundlist(res, lexer);
         if (status != PARSER_OK)
             return status;
     }
-    token_free(lexer_pop(lexer));
+    // token_free(lexer_pop(lexer));
 
     tok = lexer_peek(lexer);
     if (tok->type == TOKEN_ELSE || tok->type == TOKEN_ELIF)
         status = parse_else_clause(res, lexer);
 
+    token_free(tok);
+    tok = lexer_peek(lexer);
     if (tok->type != TOKEN_FI)
     {
         token_free(tok);
         return PARSER_UNEXPECTED_TOKEN;
     }
 
+    token_free(tok);
+    token_free(lexer_pop(lexer));
     return PARSER_OK;
 }
 
-static enum parser_status parse_else_clause(struct ast **res, struct lexer *lexer)
-{ 
+static enum parser_status parse_else_clause(struct ast_node **res,
+                                            struct lexer *lexer)
+{
     UNUSED(res);
     enum parser_status status;
 
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_ELSE)
     {
+        token_free(tok);
         token_free(lexer_pop(lexer));
 
         status = parse_compoundlist(res, lexer);
@@ -661,14 +745,13 @@ static enum parser_status parse_else_clause(struct ast **res, struct lexer *lexe
 
     if (tok->type == TOKEN_ELIF)
     {
+        token_free(tok);
         token_free(lexer_pop(lexer));
 
         status = parse_compoundlist(res, lexer);
         if (status != PARSER_OK)
             return PARSER_UNEXPECTED_TOKEN;
 
-        token_free(lexer_pop(lexer));
-        
         tok = lexer_peek(lexer);
         if (tok->type != TOKEN_THEN)
         {
@@ -676,11 +759,12 @@ static enum parser_status parse_else_clause(struct ast **res, struct lexer *lexe
             return PARSER_UNEXPECTED_TOKEN;
         }
 
+        token_free(tok);
+        token_free(lexer_pop(lexer));
         status = parse_compoundlist(res, lexer);
         if (status != PARSER_OK)
             return PARSER_UNEXPECTED_TOKEN;
 
-        token_free(lexer_pop(lexer));
         tok = lexer_peek(lexer);
         if (tok->type == TOKEN_ELSE || tok->type == TOKEN_ELIF)
         {
@@ -693,20 +777,21 @@ static enum parser_status parse_else_clause(struct ast **res, struct lexer *lexe
         return PARSER_OK;
     }
 
+    token_free(tok);
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-//TODO do_group
+// TODO do_group
 
-//TODO case_clause
+// TODO case_clause
 
-//TODO case_time
-
+// TODO case_time
+/*
 #include <stdio.h>
 
 int main(void)
 {
-    char *input = "if echo ok; then echo ok; fi";
+    char *input = "fi\n";
     struct lexer *lexer = lexer_new(input);
 
     struct ast *ast = NULL;
@@ -716,4 +801,4 @@ int main(void)
     printf("%d\n", status);
 
     lexer_free(lexer);
-}
+}*/

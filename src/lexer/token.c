@@ -1,11 +1,12 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "token.h"
-#include "../utils/alloc.h"
 
-#include <string.h>
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "../utils/alloc.h"
 
 enum token_type token_type(char *str)
 {

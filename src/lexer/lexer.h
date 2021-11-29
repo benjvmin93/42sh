@@ -1,8 +1,8 @@
 #pragma once
 
-#include "token.h"
-
 #include <stddef.h>
+
+#include "token.h"
 
 /**
  * \page Lexer
@@ -35,7 +35,7 @@ void lexer_free(struct lexer *lexer);
 /**
  * \brief Creates a new lexer given an input string.
  */
-struct lexer *lexer_new(const char *input);
+struct lexer *lexer_new(char *input);
 
 /**
  ** \brief Free the given lexer, but not its input.

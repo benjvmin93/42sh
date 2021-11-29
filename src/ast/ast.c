@@ -5,54 +5,74 @@
 
 #include "../utils/alloc.h"
 
-struct ast *ast_new_if(enum ast_type type)
+struct ast_node *ast_new_if(enum ast_type type)
 {
     type++;
     return NULL;
 }
 
-struct ast *ast_new_else(enum ast_type type)
+struct ast_node *ast_new_else(enum ast_type type)
 {
     type++;
     return NULL;
+}
+
+// Creates a new ast_cmd inside a struct ast_node
+struct ast_node *ast_new_cmd(enum ast_type type)
+{
+    // Init the ast_node structure.
+    struct ast_node *ast = xmalloc(sizeof(struct ast_node));
+    ast->type = type;
+
+    // Allocates the ast_cmd structure
+    // and init a command vector of size 1 inside that structure.
+    //ast->data = xmalloc(sizeof(struct ast_cmd));
+    ast->data.ast_cmd.cmd = vector_init(1);
+
+    return ast;
 }
 
 struct function
 {
     enum ast_type type;
-    struct ast *(*fun)(enum ast_type);
+    struct ast_node *(*fun)(enum ast_type);
 };
 
-struct function funs[] = {
-    { NODE_IF, &ast_new_if },
-    { NODE_ELSE, &ast_new_else }
-};
+struct function funs[] = { { NODE_IF, &ast_new_if },
+                           { NODE_ELSE, &ast_new_else },
+                           { NODE_COMMAND, &ast_new_cmd } };
 
-struct ast *ast_new(enum ast_type type)
+// Iterate through the function struct array funs
+// in order to find the specific ast_init function according to the type.
+struct ast_node *ast_new(enum ast_type type)
 {
-    //If type is a unique ast
     for (unsigned i = 0; i < sizeof(funs) / sizeof(*funs); i++)
     {
         if (type == funs[i].type)
             return funs[i].fun(type);
     }
 
-    //If type is a basic node
-    struct ast *new = zalloc(sizeof(struct ast));
-    new->type = type;
-    return new;
+    return NULL;
 }
 
-void ast_free(struct ast *ast)
+// Free memory.
+void free_node(struct ast_node *node)
 {
-    if (ast == NULL)
-        return;
-
-    ast_free(ast->left);
-    ast->left = NULL;
-
-    ast_free(ast->right);
-    ast->right = NULL;
-
-    free(ast);
+    switch (node->type)
+    {
+    case NODE_COMMAND: {
+        vector_destroy(node->data.ast_cmd.cmd);
+        free(node);
+    }
+    case NODE_IF: {
+        ast_free(node->data.ast_if.body);
+        ast_free(node->data.ast_if.then);
+        ast_free(node->data.ast_if.cond);
+    }
+    case NODE_ELSE: {
+        ast_free(node->data.ast_else.body);
+    }
+    default:
+        break;
+    }
 }

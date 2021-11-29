@@ -1,13 +1,13 @@
 #ifndef AST_H
 #define AST_H
 
-#include "../lexer/token.h"
 #include "../lexer/lexer.h"
+#include "../lexer/token.h"
+#include "../utils/vector/vector.h"
 
 enum ast_type
 {
-    NODE_LINEBREAK,
-    NODE_SEMICOLON,
+    NODE_COMMAND,
     NODE_AND,
     NODE_IF,
     NODE_ELSE,
@@ -18,72 +18,26 @@ enum ast_type
 
 struct ast_cmd
 {
-    char **argv;
+    struct vector *cmd;
 };
 
 struct ast_if
 {
-    struct ast *cond;
-    struct ast *then;
-    struct ast *body;
-};
-
-struct ast_simple_quote
-{
-    struct ast *cond;
-    struct ast *body;
+    struct ast_node *cond;
+    struct ast_node *then;
+    struct ast_node *body;
 };
 
 struct ast_else
 {
-    struct ast *body;
-};
-
-struct ast_elif
-{
-    struct ast *condition;
-    struct ast *body;
-};
-
-struct ast_fi
-{
-    struct ast *body;
-};
-
-struct ast_semicolon
-{
-    struct ast *body;
-};
-
-struct ast_line_break
-{
-    struct ast *body;
-};
-
-struct ast_word
-{
-    struct ast *body;
-};
-
-struct ast
-{
-    enum ast_type type;
-    void *data;
-    struct ast *left;
-    struct ast *right;
+    struct ast_node *body;
 };
 
 union ast_data
 {
     struct ast_cmd ast_cmd;
     struct ast_if ast_if;
-    struct ast_simple_quote ast_simple_quote;
     struct ast_else ast_else;
-    struct ast_elif ast_elif;
-    struct ast_fi ast_fi;
-    struct ast_semicolon ast_semicolon;
-    struct ast_line_break ast_line_break;
-    struct ast_word ast_word;
 };
 
 struct ast_node
@@ -92,7 +46,8 @@ struct ast_node
     union ast_data data;
 };
 
-struct ast *ast_new(enum ast_type type);
-void ast_free(struct ast *ast);
+struct ast_node **ast_add(struct ast_node *node);
+struct ast_node *ast_new(enum ast_type type);
+void free_node(struct ast_node *node);
 
 #endif
