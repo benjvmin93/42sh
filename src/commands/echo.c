@@ -1,11 +1,11 @@
 #define _POSIX_C_SOURCE 2
 
-#include "echo.h"
+#include "exec_commands.h"
 
 #include <stdio.h>
 #include <unistd.h>
 
-int count_tokens(char **argv)
+static int count_tokens(char **argv)
 {
     int count = 0;
     while (argv[count])

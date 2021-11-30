@@ -5,6 +5,8 @@
 
 #include "../utils/alloc.h"
 
+struct vector *ast_vector = NULL;
+
 struct ast_node *ast_new_if(enum ast_type type)
 {
     type++;
@@ -27,7 +29,7 @@ struct ast_node *ast_new_cmd(enum ast_type type)
     // Allocates the ast_cmd structure
     // and init a command vector of size 1 inside that structure.
     //ast->data = xmalloc(sizeof(struct ast_cmd));
-    ast->data.ast_cmd.cmd = vector_init(1);
+    ast->data.ast_cmd.argv = NULL;
 
     return ast;
 }
@@ -61,9 +63,20 @@ void free_node(struct ast_node *node)
     switch (node->type)
     {
     case NODE_COMMAND: {
-        vector_destroy(node->data.ast_cmd.cmd);
+        char **argv = node->data.ast_cmd.argv;
+        if (argv)
+        {
+            while (*argv)
+            {
+                char *tmp = *argv;
+                argv++;
+                free(tmp);
+            }
+            free(argv);
+        }
         free(node);
     }
+                       /*
     case NODE_IF: {
         ast_free(node->data.ast_if.body);
         ast_free(node->data.ast_if.then);
@@ -71,7 +84,7 @@ void free_node(struct ast_node *node)
     }
     case NODE_ELSE: {
         ast_free(node->data.ast_else.body);
-    }
+    }*/
     default:
         break;
     }
