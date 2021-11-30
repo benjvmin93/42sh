@@ -5,7 +5,7 @@
  */
 
 enum parser_status parser_rules_shellcmd(struct ast_node **res,
-                                                struct lexer *lexer)
+                                         struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);

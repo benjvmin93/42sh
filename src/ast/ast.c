@@ -9,8 +9,11 @@ struct vector *ast_vector = NULL;
 
 struct ast_node *ast_new_if(enum ast_type type)
 {
-    type++;
-    return NULL;
+    // Init the ast_node structure.
+    struct ast_node *ast = xmalloc(sizeof(struct ast_node));
+    ast->type = type;
+
+    return ast;
 }
 
 struct ast_node *ast_new_else(enum ast_type type)
@@ -28,7 +31,7 @@ struct ast_node *ast_new_cmd(enum ast_type type)
 
     // Allocates the ast_cmd structure
     // and init a command vector of size 1 inside that structure.
-    //ast->data = xmalloc(sizeof(struct ast_cmd));
+    // ast->data = xmalloc(sizeof(struct ast_cmd));
     ast->data.ast_cmd.argv = NULL;
 
     return ast;
@@ -69,22 +72,22 @@ void free_node(struct ast_node *node)
             while (*argv)
             {
                 char *tmp = *argv;
-                argv++;
                 free(tmp);
+                argv++;
             }
-            free(argv);
         }
+        free(node->data.ast_cmd.argv);
         free(node);
     }
-                       /*
-    case NODE_IF: {
-        ast_free(node->data.ast_if.body);
-        ast_free(node->data.ast_if.then);
-        ast_free(node->data.ast_if.cond);
-    }
-    case NODE_ELSE: {
-        ast_free(node->data.ast_else.body);
-    }*/
+        /*
+case NODE_IF: {
+ast_free(node->data.ast_if.body);
+ast_free(node->data.ast_if.then);
+ast_free(node->data.ast_if.cond);
+}
+case NODE_ELSE: {
+ast_free(node->data.ast_else.body);
+}*/
     default:
         break;
     }

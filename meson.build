@@ -27,6 +27,9 @@ add_project_arguments(cflags, language: 'c')
   #include_directories('src/basic_prompt'),
   #include_directories('src/parser'),
   #include_directories('src/utils'),
+  #include_directories('src/ast'),
+  #include_directories('src/commands'),
+  #include_directories('src/execution'),
   #]
 
 #common = [

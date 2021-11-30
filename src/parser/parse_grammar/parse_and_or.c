@@ -4,8 +4,7 @@
  * and_or: and_or  (('&&' | '||') ('\n')* pipeline)*
  */
 
-enum parser_status parse_and_or(struct ast_node **res,
-                                       struct lexer *lexer)
+enum parser_status parse_and_or(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     enum parser_status status = parse_pipeline(res, lexer);

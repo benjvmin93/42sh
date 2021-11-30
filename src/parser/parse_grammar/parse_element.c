@@ -4,8 +4,7 @@
  * element: WORD | redirection
  */
 
-enum parser_status parse_element(struct ast_node **res,
-                                        struct lexer *lexer)
+enum parser_status parse_element(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);

@@ -6,7 +6,7 @@
  */
 
 enum parser_status parse_compoundlist(struct ast_node **res,
-                                             struct lexer *lexer)
+                                      struct lexer *lexer)
 {
     UNUSED(res);
     struct token *tok = lexer_peek(lexer);

@@ -12,7 +12,7 @@ struct vector *vector_init(size_t n, size_t size)
     new->size = 0;
     new->capacity = n;
     new->size_data = size;
-    new->data = malloc(new->capacity * new->size_data);
+    new->data = malloc(new->capacity *new->size_data);
     if (!new->data)
         return NULL;
     return new;

@@ -1,8 +1,6 @@
 #include "../parser.h"
 
-
-enum parser_status parse_else_clause(struct ast_node **res,
-                                            struct lexer *lexer)
+enum parser_status parse_else_clause(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     enum parser_status status;

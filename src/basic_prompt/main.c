@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "../execution/exec.h"
 #include "../lexer/lexer.h"
 #include "../parser/parser.h"
 #include "../utils/alloc.h"
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
     struct lexer *lexer = NULL;
     struct ast_node *ast = NULL;
     enum parser_status status;
+    ast_vector = vector_init(1, sizeof(struct ast_node));
 
     if (argc == 1)
     {
@@ -36,8 +38,10 @@ int main(int argc, char **argv)
         status = parse(&ast, lexer);
     }
 
-    printf("%d\n", status);
+    exec_all(ast);
+
+    // printf("%d\n", status);
     lexer_free(lexer);
-    //free_node(ast);
+    free_node(ast);
     return 0;
 }

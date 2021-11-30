@@ -4,8 +4,7 @@
  * prefix: ASSIGNMENT_WORD | redirection
  */
 
-enum parser_status parse_prefix(struct ast_node **res,
-                                       struct lexer *lexer)
+enum parser_status parse_prefix(struct ast_node **res, struct lexer *lexer)
 {
     UNUSED(res);
     if (is_assignment_word(lexer))
