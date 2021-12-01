@@ -43,5 +43,5 @@ int main(int argc, char **argv)
     // printf("%d\n", status);
     lexer_free(lexer);
     free_node(ast);
-    return 0;
+    return status;
 }
