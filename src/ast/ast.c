@@ -5,13 +5,14 @@
 
 #include "../utils/alloc.h"
 
-struct vector *ast_vector = NULL;
-
 struct ast_node *ast_new_if(enum ast_type type)
 {
     // Init the ast_node structure.
     struct ast_node *ast = xmalloc(sizeof(struct ast_node));
     ast->type = type;
+    ast->data.ast_if.cond = NULL;
+    ast->data.ast_if.then = NULL;
+    ast->data.ast_if.body = NULL;
 
     return ast;
 }
@@ -60,13 +61,9 @@ struct ast_node *ast_new(enum ast_type type)
     return NULL;
 }
 
-// Free memory.
-void free_node(struct ast_node *node)
+void free_node_cmd(struct ast_node *node)
 {
-    switch (node->type)
-    {
-    case NODE_COMMAND: {
-        char **argv = node->data.ast_cmd.argv;
+    char **argv = node->data.ast_cmd.argv;
         if (argv)
         {
             while (*argv)
@@ -78,16 +75,33 @@ void free_node(struct ast_node *node)
         }
         free(node->data.ast_cmd.argv);
         free(node);
-    }
-        /*
-case NODE_IF: {
-ast_free(node->data.ast_if.body);
-ast_free(node->data.ast_if.then);
-ast_free(node->data.ast_if.cond);
 }
-case NODE_ELSE: {
-ast_free(node->data.ast_else.body);
-}*/
+
+void free_node_if(struct ast_node *node)
+{
+    struct ast_if ast = node->data.ast_if;
+
+    if (ast.body)
+        free_node(ast.body);
+    free_node(ast.cond);
+    free_node(ast.then);
+    free(node);
+}
+
+// Free memory.
+void free_node(struct ast_node *node)
+{
+    if (!node)
+        return;
+
+    switch (node->type)
+    {
+    case NODE_COMMAND:
+        free_node_cmd(node);
+        break;
+    case NODE_IF:
+        free_node_if(node);
+        break;
     default:
         break;
     }

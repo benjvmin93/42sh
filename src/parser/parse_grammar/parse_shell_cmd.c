@@ -1,5 +1,7 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 /**
  * shellcmd: '{' compound_list '}'
  *      | '(' compound_list ')'
@@ -10,54 +12,54 @@
  *      | rule_is
  */
 
-enum parser_status parse_shellcmd(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_shellcmd(struct lexer *lexer)
 {
-    UNUSED(res);
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LEFT_ACC)
     {
         token_free(lexer_pop(lexer));
-        enum parser_status status = parse_compoundlist(res, lexer);
-        if (status != PARSER_OK)
-            return status;
+        parser = parse_compoundlist(lexer);
+        if (parser->status != PARSER_OK)
+            return parser;
 
         tok = lexer_peek(lexer);
         if (tok->type == TOKEN_RIGHT_ACC)
         {
             token_free(lexer_pop(lexer));
-            return status;
+            return parser;
         }
         else
         {
             token_free(tok);
-            return PARSER_UNEXPECTED_TOKEN;
+            parser->status = PARSER_UNEXPECTED_TOKEN;
+            return parser;
         }
     }
 
     if (tok->type == TOKEN_LEFT_PARENTHESIS)
     {
         token_free(lexer_pop(lexer));
-        enum parser_status status = parse_compoundlist(res, lexer);
-        if (status != PARSER_OK)
-            return status;
+        parser = parse_compoundlist(lexer);
+        if (parser->status != PARSER_OK)
+            return parser;
 
         tok = lexer_peek(lexer);
         if (tok->type == TOKEN_RIGHT_PARENTHESIS)
         {
             token_free(lexer_pop(lexer));
-            return status;
+            return parser;
         }
         else
         {
             token_free(tok);
-            return PARSER_UNEXPECTED_TOKEN;
+            parser->status = PARSER_UNEXPECTED_TOKEN;
+            return parser;
         }
     }
     else
         token_free(tok);
 
-    if (parser_rules_shellcmd(res, lexer) == PARSER_OK)
-        return PARSER_OK;
+    parser = parser_rules_shellcmd(lexer);
 
-    return PARSER_UNEXPECTED_TOKEN;
+    return parser;
 }

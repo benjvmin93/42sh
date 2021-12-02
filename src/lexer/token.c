@@ -27,7 +27,14 @@ enum token_type token_type(char *str)
                                           { ")", TOKEN_RIGHT_PARENTHESIS },
                                           { "{", TOKEN_LEFT_ACC },
                                           { "}", TOKEN_RIGHT_ACC },
-                                          { "EOF", TOKEN_EOF } };
+                                          { "EOF", TOKEN_EOF },
+                                          { ">", TOKEN_CHEVRON_RIGHT },
+                                          { "<", TOKEN_CHEVRON_LEFT },
+                                          { ">&", TOKEN_CHEVRON_RIGHT_AND },
+                                          { "<&", TOKEN_CHEVRON_LEFT_AND },
+                                          { ">>", TOKEN_DOUBLE_CHEVRON_RIGHT },
+                                          { "<>", TOKEN_CHEVRON_LEFT_RIGHT },
+                                          { ">|", TOKEN_CHEVRON_RIGHT_OR } };
 
     for (unsigned i = 0; i < sizeof(exprs) / sizeof(*exprs); i++)
     {

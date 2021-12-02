@@ -1,5 +1,7 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 /**
  * redirection: [IONUMBER] '>' WORD
         | [IONUMBER] '<' WORD
@@ -12,10 +14,10 @@
         | [IONUMBER] '<>' WORD
  */
 
-enum parser_status parse_redirection(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_redirection(struct lexer *lexer)
 {
-    UNUSED(res);
     UNUSED(lexer);
     // TODO redirection
-    return PARSER_UNEXPECTED_TOKEN;
+    parser->status = PARSER_UNEXPECTED_TOKEN;
+    return parser;
 }

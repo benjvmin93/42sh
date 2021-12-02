@@ -15,19 +15,23 @@
 int main(int argc, char **argv)
 {
     struct lexer *lexer = NULL;
-    struct ast_node *ast = NULL;
-    enum parser_status status;
-    ast_vector = vector_init(1, sizeof(struct ast_node));
-
     if (argc == 1)
     {
         char *buf = NULL;
         size_t n = 0;
-        if (getline(&buf, &n, stdin) == -1)
-            errx(2, "%s", *argv);
+        while (getline(&buf, &n, stdin) != -1)
+        {
+            lexer = lexer_new(buf);
+            parser = parse(lexer);
+            if (parser->status == PARSER_OK)
+                exec_all(parser->vector);
+            n = 0;
+            buf = NULL;
+            lexer_free(lexer);
+            vector_destroy(parser->vector);
+        }
 
-        lexer = lexer_new(buf);
-        status = parse(&ast, lexer);
+        free(buf);
     }
     else
     {
@@ -35,13 +39,11 @@ int main(int argc, char **argv)
             errx(2, "Usage: ./42sh [OPTIONS] [SCRIPT] [ARGUMENTS ...]");
         char *input = strdup(argv[2]);
         lexer = lexer_new(input);
-        status = parse(&ast, lexer);
+        parser = parse(lexer);
+        if (parser->status == PARSER_OK)
+            exec_all(parser->vector);
+        lexer_free(lexer);
+        vector_destroy(parser->vector);
     }
-
-    exec_all(ast);
-
-    // printf("%d\n", status);
-    lexer_free(lexer);
-    free_node(ast);
-    return status;
+    return parser->status;
 }

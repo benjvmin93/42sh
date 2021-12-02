@@ -5,8 +5,6 @@
 #include "../lexer/token.h"
 #include "../utils/vector/vector.h"
 
-extern struct vector *ast_vector;
-
 enum ast_type
 {
     NODE_COMMAND,

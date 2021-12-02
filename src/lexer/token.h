@@ -26,7 +26,14 @@ enum token_type
     TOKEN_FOR, // 'for'
     TOKEN_WHILE, // 'while'
     TOKEN_UNTIL, // 'until'
-    TOKEN_CASE // 'case'
+    TOKEN_CASE, // 'case'
+    TOKEN_CHEVRON_RIGHT, // '>'
+    TOKEN_CHEVRON_LEFT, // '<'
+    TOKEN_CHEVRON_RIGHT_AND, // '>&'
+    TOKEN_CHEVRON_LEFT_AND, // '<&'
+    TOKEN_DOUBLE_CHEVRON_RIGHT, // '>>'
+    TOKEN_CHEVRON_LEFT_RIGHT, // '<>'
+    TOKEN_CHEVRON_RIGHT_OR // '>|'
 };
 
 struct token

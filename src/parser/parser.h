@@ -9,6 +9,7 @@
 #include "../ast/ast.h"
 #include "../lexer/lexer.h"
 #include "../utils/alloc.h"
+#include "../utils/vector/vector.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -18,33 +19,40 @@ enum parser_status
     PARSER_UNEXPECTED_TOKEN // 1
 };
 
-enum parser_status parse(struct ast_node **res, struct lexer *lexer);
-void linebreak_while(struct lexer *lexer);
-enum parser_status parse_else_clause(struct ast_node **res,
-                                     struct lexer *lexer);
-enum parser_status parse_ruleif(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_rulecase(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_ruleuntil(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_rulewhile(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_rulefor(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_compoundlist(struct ast_node **res,
-                                      struct lexer *lexer);
-enum parser_status parse_element(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_prefix(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_redirection(struct ast_node **res,
-                                     struct lexer *lexer);
-enum parser_status parse_funcdec(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_shellcmd(struct ast_node **res, struct lexer *lexer);
-enum parser_status parser_rules_shellcmd(struct ast_node **res,
-                                         struct lexer *lexer);
-enum parser_status parse_simplecmd(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_cmd(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_pipeline(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_and_or(struct ast_node **res, struct lexer *lexer);
-enum parser_status parse_list(struct ast_node **res, struct lexer *lexer);
+struct parse_ast
+{
+    enum parser_status status;
+    struct vector *vector;
+};
 
-enum parser_status handle_parse_error(enum parser_status status,
-                                      struct ast_node **res);
+extern struct parse_ast *parser;
+
+/*
+struct parse_ast *parser_init(void);
+void parser_free(struct parse_ast *parser);
+*/
+struct parse_ast *parse(struct lexer *lexer);
+void linebreak_while(struct lexer *lexer);
+struct parse_ast *parse_else_clause(struct lexer *lexer);
+struct parse_ast *parse_ruleif(struct lexer *lexer);
+struct parse_ast *parse_rulecase(struct lexer *lexer);
+struct parse_ast *parse_ruleuntil(struct lexer *lexer);
+struct parse_ast *parse_rulewhile(struct lexer *lexer);
+struct parse_ast *parse_rulefor(struct lexer *lexer);
+struct parse_ast *parse_compoundlist(struct lexer *lexer);
+struct parse_ast *parse_element(struct lexer *lexer);
+struct parse_ast *parse_prefix(struct lexer *lexer);
+struct parse_ast *parse_redirection(struct lexer *lexer);
+struct parse_ast *parse_funcdec(struct lexer *lexer);
+struct parse_ast *parse_shellcmd(struct lexer *lexer);
+struct parse_ast *parser_rules_shellcmd(struct lexer *lexer);
+struct parse_ast *parse_simplecmd(struct lexer *lexer);
+struct parse_ast *parse_cmd(struct lexer *lexer);
+struct parse_ast *parse_pipeline(struct lexer *lexer);
+struct parse_ast *parse_and_or(struct lexer *lexer);
+struct parse_ast *parse_list(struct lexer *lexer);
+
+void handle_parse_error(void);
 
 int is_assignment_word(struct lexer *lexer);
 

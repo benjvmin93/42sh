@@ -1,5 +1,7 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 int is_assignment_word(struct lexer *lexer)
 {
     char *exprs[] = { "echo", "ls" };
@@ -21,10 +23,9 @@ int is_assignment_word(struct lexer *lexer)
 /**
  * simplemcd: (prefix)+ | (prefix)* (element)+
  */
-enum parser_status parse_simplecmd(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_simplecmd(struct lexer *lexer)
 {
-    enum parser_status status_prefix = PARSER_UNEXPECTED_TOKEN;
-    enum parser_status status;
+    int status_prefix = PARSER_UNEXPECTED_TOKEN;
 
     struct ast_node *cmd = ast_new(NODE_COMMAND);
     char **s = NULL;
@@ -32,11 +33,12 @@ enum parser_status parse_simplecmd(struct ast_node **res, struct lexer *lexer)
 
     while (1)
     {
-        status = parse_prefix(res, lexer);
-        if (status_prefix == PARSER_UNEXPECTED_TOKEN && status == PARSER_OK)
+        parser = parse_prefix(lexer);
+        if (status_prefix == PARSER_UNEXPECTED_TOKEN
+            && parser->status == PARSER_OK)
             status_prefix = PARSER_OK;
 
-        if (status != PARSER_OK)
+        if (parser->status != PARSER_OK)
             break;
 
         s = xrealloc(s, (i + 1) * sizeof(char *));
@@ -44,14 +46,15 @@ enum parser_status parse_simplecmd(struct ast_node **res, struct lexer *lexer)
         s[i++] = NULL;
     }
 
-    enum parser_status status_elt = PARSER_UNEXPECTED_TOKEN;
+    int status_elt = PARSER_UNEXPECTED_TOKEN;
     while (true)
     {
-        status = parse_element(res, lexer);
-        if (status_elt == PARSER_UNEXPECTED_TOKEN && status == PARSER_OK)
+        parser = parse_element(lexer);
+        if (status_elt == PARSER_UNEXPECTED_TOKEN
+            && parser->status == PARSER_OK)
             status_elt = PARSER_OK;
 
-        if (status != PARSER_OK)
+        if (parser->status != PARSER_OK)
             break;
 
         if (s)
@@ -66,11 +69,12 @@ enum parser_status parse_simplecmd(struct ast_node **res, struct lexer *lexer)
     {
         free_node(cmd);
         free(s);
-        return PARSER_UNEXPECTED_TOKEN;
+        parser->status = PARSER_UNEXPECTED_TOKEN;
+        return parser;
     }
 
     cmd->data.ast_cmd.argv = s;
-    *res = cmd;
-
-    return PARSER_OK;
+    parser->vector = vector_append(parser->vector, cmd);
+    parser->status = PARSER_OK;
+    return parser;
 }

@@ -1,10 +1,12 @@
 #include "../parser.h"
 
-enum parser_status handle_parse_error(enum parser_status status,
-                                      struct ast_node **res)
+extern struct parse_ast *parser;
+
+void handle_parse_error(void)
 {
-    warnx("unexpected token");
-    // ast_free(*res);
-    *res = NULL;
-    return status;
+    switch (parser->status)
+    {
+    default:
+        warnx("unexpected token");
+    }
 }

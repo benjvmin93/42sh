@@ -3,5 +3,6 @@
 
 int exec_command(char **argv);
 int echo(char **argv);
+int exec_true_false(char **argv);
 
 #endif

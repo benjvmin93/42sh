@@ -1,14 +1,14 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 /**
  * compound_list: ('\n')* and_or ((';'|'&'|'\n') ('\n')* and_or)*
  * [('&'|';'|'\n') ('\n')*]
  */
 
-enum parser_status parse_compoundlist(struct ast_node **res,
-                                      struct lexer *lexer)
+struct parse_ast *parse_compoundlist(struct lexer *lexer)
 {
-    UNUSED(res);
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LINE_BREAK)
     {
@@ -16,9 +16,9 @@ enum parser_status parse_compoundlist(struct ast_node **res,
     }
 
     token_free(tok);
-    enum parser_status status = parse_and_or(res, lexer);
-    if (status != PARSER_OK)
-        return status;
+    parser = parse_and_or(lexer);
+    if (parser->status != PARSER_OK)
+        return parser;
 
     // token_free(lexer_pop(lexer));
     while (true)
@@ -34,14 +34,16 @@ enum parser_status parse_compoundlist(struct ast_node **res,
             linebreak_while(lexer);
         }
         token_free(tok);
-        enum parser_status status = parse_and_or(res, lexer);
-        if (status != PARSER_OK)
+        parser = parse_and_or(lexer);
+        if (parser->status != PARSER_OK)
         {
             token_free(lexer_pop(lexer));
-            return PARSER_OK;
+            parser->status = PARSER_OK;
+            return parser;
         }
     }
 
     token_free(tok);
-    return PARSER_OK;
+    parser->status = PARSER_OK;
+    return parser;
 }

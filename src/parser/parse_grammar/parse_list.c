@@ -1,15 +1,16 @@
 #include "../parser.h"
 
+
+extern struct parse_ast *parser;
 /**
  * list: and_or  ((';' | '&')  and_or)*  [';' | '&']
  */
 
-enum parser_status parse_list(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_list(struct lexer *lexer)
 {
-    UNUSED(res);
-    enum parser_status status = parse_and_or(res, lexer);
-    if (status != PARSER_OK)
-        return status;
+    struct parse_ast *parser = parse_and_or(lexer);
+    if (parser->status != PARSER_OK)
+        return parser;
 
     while (true)
     {
@@ -18,15 +19,22 @@ enum parser_status parse_list(struct ast_node **res, struct lexer *lexer)
         if (tok->type != TOKEN_SEMICOLON && tok->type != TOKEN_AND)
         {
             token_free(tok);
-            return PARSER_OK;
+            parser->status = PARSER_OK;
+            return parser;
         }
         token_free(tok);
         token_free(lexer_pop(lexer));
 
+        parser = parse_and_or(lexer);
+
         // parse the stuff at the right
-        if ((status = parse_and_or(res, lexer)) != PARSER_OK)
+        if (parser->status != PARSER_OK)
+        {
+            //free_node(tmp);
             break;
+        }
     }
 
-    return PARSER_OK;
+    parser->status = PARSER_OK;
+    return parser;
 }

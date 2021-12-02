@@ -1,21 +1,21 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 /**
  * prefix: ASSIGNMENT_WORD | redirection
  */
 
-enum parser_status parse_prefix(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_prefix(struct lexer *lexer)
 {
-    UNUSED(res);
     if (is_assignment_word(lexer))
     {
         token_free(lexer_pop(lexer));
-        return PARSER_OK;
+        parser->status = PARSER_OK;
+        return parser;
     }
 
-    enum parser_status status = parse_redirection(res, lexer);
-    if (status == PARSER_OK)
-        return status;
+    parser = parse_redirection(lexer);
 
-    return PARSER_UNEXPECTED_TOKEN;
+    return parser;
 }

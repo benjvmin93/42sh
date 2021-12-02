@@ -12,6 +12,17 @@
 #include "../utils/clist.h"
 #include "token.h"
 
+char *token_process(char *token, struct lexer *lexer, size_t *i)
+{
+    token[*i] = lexer->input[lexer->pos];
+    *i += 1;
+    token = xrealloc(token, ((*i) + 1) * sizeof(char));
+    token[*i] = 0;
+    lexer->pos++;
+
+    return token;
+}
+
 char *cut_token(struct lexer *lexer)
 {
     size_t index = lexer->pos;
@@ -25,30 +36,21 @@ char *cut_token(struct lexer *lexer)
 
     size_t i = 0;
     char *token = zalloc(sizeof(char));
+
     while (lexer->input[lexer->pos])
     {
         if (lexer->input[lexer->pos] == ' ')
-        {
             break;
-        }
         if (lexer->input[lexer->pos] == ';' || lexer->input[lexer->pos] == '&'
             || lexer->input[lexer->pos] == '|')
         {
             if (*token)
                 break;
-            token[i++] = lexer->input[lexer->pos];
-            token = xrealloc(token, (i + 1) * sizeof(char));
-            token[i] = 0;
-            lexer->pos++;
+            token = token_process(token, lexer, &i);
 
             if (lexer->input[lexer->pos]
                 && lexer->input[lexer->pos - 1] == lexer->input[lexer->pos])
-            {
-                token[i++] = lexer->input[lexer->pos];
-                token = xrealloc(token, (i + 1) * sizeof(char));
-                token[i] = 0;
-                lexer->pos++;
-            }
+                token = token_process(token, lexer, &i);
             break;
         }
         if (lexer->input[lexer->pos] == '\n')
@@ -57,18 +59,27 @@ char *cut_token(struct lexer *lexer)
                 break;
             else
             {
-                token[i++] = lexer->input[lexer->pos];
-                token = xrealloc(token, (i + 1) * sizeof(char));
-                token[i] = 0;
-                lexer->pos++;
+                token = token_process(token, lexer, &i);
                 break;
             }
         }
 
-        token[i++] = lexer->input[lexer->pos];
-        token = xrealloc(token, (i + 1) * sizeof(char));
-        token[i] = 0;
-        lexer->pos++;
+        if (lexer->input[lexer->pos] == '>')
+        {
+            token = token_process(token, lexer, &i);
+            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
+                token = token_process(token, lexer, &i);
+            break;
+        }
+        if (lexer->input[lexer->pos] == '<')
+        {
+            token = token_process(token, lexer, &i);
+            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>')
+                token = token_process(token, lexer, &i);
+            break;
+        }
+
+        token = token_process(token, lexer, &i);
     }
 
     lexer->pos = index;
@@ -131,11 +142,12 @@ struct token *lexer_pop(struct lexer *lexer)
 /*
 int main(void)
 {
-    struct lexer *lexer = lexer_new("if echo 'ok'; then echo ko;; fi && echo
-foobar ||"); struct token *token = lexer_pop(lexer); while (token->type !=
-TOKEN_EOF)
+    char *s = strdup("echo a <& cat -e >& file.txt");
+    struct lexer *lexer = lexer_new(s);
+    struct token *token = lexer_pop(lexer);
+    while (token->type != TOKEN_EOF)
     {
-        printf("%s\n", token->data);
+        printf("token: '%s'\n", token->data);
         token_free(token);
         token = lexer_pop(lexer);
     }

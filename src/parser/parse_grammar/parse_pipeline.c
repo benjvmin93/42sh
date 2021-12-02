@@ -1,16 +1,17 @@
 #include "../parser.h"
 
+extern struct parse_ast *parser;
+
 /**
  * pipeline: ['!'] command ('|' ('\n')* command)*
  */
 
-enum parser_status parse_pipeline(struct ast_node **res, struct lexer *lexer)
+struct parse_ast *parse_pipeline(struct lexer *lexer)
 {
-    UNUSED(res);
     // TODO add not !
-    enum parser_status status = parse_cmd(res, lexer);
-    if (status != PARSER_OK)
-        return status;
+    parser = parse_cmd(lexer);
+    if (parser->status != PARSER_OK)
+        return parser;
 
     while (true)
     {
@@ -18,7 +19,8 @@ enum parser_status parse_pipeline(struct ast_node **res, struct lexer *lexer)
         if (tok->type != TOKEN_PIPE)
         {
             token_free(tok);
-            return PARSER_OK;
+            parser->status = PARSER_OK;
+            return parser;
         }
         token_free(tok);
         token_free(lexer_pop(lexer));
@@ -33,7 +35,9 @@ enum parser_status parse_pipeline(struct ast_node **res, struct lexer *lexer)
             token_free(tok2);
             token_free(lexer_pop(lexer));
         }
-        if ((status = parse_cmd(res, lexer)) != PARSER_OK)
-            return status;
+        parser = parse_cmd(lexer);
+        if (parser->status != PARSER_OK)
+            return parser;
     }
+    return parser;
 }

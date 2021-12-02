@@ -1,4 +1,5 @@
 #include "vector.h"
+#include "../../ast/ast.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +23,10 @@ void vector_destroy(struct vector *v)
 {
     if (!v)
         return;
+    for (size_t i = 0; i < v->size; i++)
+    {
+        free_node(v->data[i]);
+    }
     free(v->data);
     free(v);
 }
@@ -125,13 +130,14 @@ struct vector *vector_remove(struct vector *v, size_t i)
     struct vector *new = vector_init(v->size, v->size_data);
     for (size_t j = 0; j < v->size - 1; j++)
     {
+        
         if (j >= i)
             new = vector_append(new, v->data[j + 1]);
         else
             new = vector_append(new, v->data[j]);
     }
-
-    vector_destroy(v);
-
+    
+    free(v->data);
+    free(v);
     return new;
 }

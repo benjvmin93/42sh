@@ -1,14 +1,16 @@
-
--c "echo"
--c "echo oui"
--c "echo                    oui"
--c "            echo            ok"
--c "echo ok;"
--c "echo ok; echo oui"
--c "echo \n"
--c "echo \n;"
--c "echo ok; echo \n"
--c "echo;"
--c "echo echo ok;"
--c "echo echo echo echo echo echo echo; echo ok"
--c "echo echo\n echo \n echo '\n' 'echo' \n"
+echo oui
+echo                    oui
+           echo            ok
+echo ok;
+echo ok; echo oui
+echo \\n
+echo \\n;
+echo ok; echo \\n
+echo;
+echo echo ok;
+ echo echo echo echo echo echo echo; echo ok
+ echo echo\\n echo \\n echo '\\n' 'echo' \\n
+echo -e happy\\n
+echo -n happy\\n
+echo a echo b echo c
+echo a; echo b; echo c;

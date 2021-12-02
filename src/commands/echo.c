@@ -27,6 +27,7 @@ int parse_opt(char *argv, int *no_newline, int *escape)
     size_t i = 1;
     int tmp_newline = 0;
     int tmp_escape = 0;
+
     if (*argv == '-')
     {
         while (argv[i])
@@ -48,6 +49,66 @@ int parse_opt(char *argv, int *no_newline, int *escape)
     else
         return 0;
 }
+
+int is_escape_char(char c)
+{
+    switch (c)
+    {
+    case '\a':
+        return 'a';
+    case '\b':
+        return 'b';
+    case '\t':
+        return 't';
+    case '\n':
+        return 'n';
+    case '\v':
+        return 'v';
+    case '\f':
+        return 'f';
+    case '\r':
+        return 'r';
+    default:
+        return 0;
+    }
+}
+
+int echo_escape(char **argv, int no_newline)
+{
+    int escape_char = 0;
+    for (size_t i = 0; argv[i]; i++)
+    {
+        size_t j = 0;
+        if (argv[i][0] == '"' || argv[i][0] == '\'')
+            j = 1;
+        for (; argv[i][j]; j++)
+        {
+            
+            if ((escape_char = is_escape_char(argv[i][j])))
+            {
+                putchar('\\');
+                putchar(escape_char);
+            }
+            else
+            {
+                if (!argv[i][j + 1] && (argv[i][j] == '"' || argv[i][j] == '\''))
+                    ;
+                else                    
+                    putchar(argv[i][j]);
+            }
+        }
+        if (argv[i + 1])
+            putchar(' ');
+        else
+        {
+            if (no_newline == 0)
+                putchar('\n');
+        }
+    }
+
+    return 0;
+}
+
 int echo(char **argv)
 {
     // Initialization of booleans in order to know which options are asked by
@@ -69,26 +130,26 @@ int echo(char **argv)
     while (is_opt(*argv) && (opt_res = parse_opt(*argv, &no_newline, &escape)))
         argv++;
 
-    // echo -n [ARGUMENTS]
-    if (no_newline)
-    {
-        for (int i = 0; argv[i]; i++)
-        {
-            if (argv[i + 1])
-                fprintf(stdout, "%s ", argv[i]);
-            else
-                fprintf(stdout, "%s", argv[i]);
-        }
-        return 0;
-    }
 
-    // echo [ARGUMENTS]
+    if (escape == 0)
+    {
+        return echo_escape(argv, no_newline);
+    }
     for (size_t i = 0; argv[i]; i++)
     {
+        if (argv[i][0] == '"' || argv[i][0] == '\'')
+            argv[i]++;
         if (argv[i + 1])
             fprintf(stdout, "%s ", argv[i]);
         else
-            fprintf(stdout, "%s\n", argv[i]);
+        {
+            if (*argv[i] == '"' || *argv[i] == '\'')
+                break;
+            if (no_newline)
+                fprintf(stdout, "%s", argv[i]);
+            else
+                fprintf(stdout, "%s\n", argv[i]);
+        }
     }
 
     return 0;
@@ -96,6 +157,6 @@ int echo(char **argv)
 /*
 int main(void)
 {
-    char *argv[] = { "echo", "-neEEEEnnn", "-eeEEEEnnnn" "foo", NULL};
+    char *argv[] = { "echo", "-Een", "-EEEn", "foo$?", NULL};
     return echo(argv);
 }*/
