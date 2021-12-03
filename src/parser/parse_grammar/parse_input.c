@@ -36,8 +36,7 @@ struct parse_ast *parse(struct lexer *lexer)
     parser = parse_list(lexer);
     if (parser->status != PARSER_OK)
     {
-        printf("%s\n", lexer->input + lexer->pos);
-        handle_parse_error();
+        handle_parse_error(lexer);
         return parser;
     }
     // once parsing the expression is done, we should have
@@ -61,6 +60,6 @@ struct parse_ast *parse(struct lexer *lexer)
     token_free(tok);
     // printf("%s\n", lexer->input + lexer->pos);
 
-    handle_parse_error();
+    handle_parse_error(lexer);
     return parser;
 }

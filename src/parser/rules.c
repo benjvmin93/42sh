@@ -10,8 +10,8 @@ int follow_list(struct token *token)
 
 int follow_andor(struct token *token)
 {
-    return (token->type == TOKEN_SEMICOLON) || (token->type == TOKEN_AND)
-        || follow_list(token);
+    //token->type == TOKEN_SEMICOLON
+    return (token->type == TOKEN_AND) || follow_list(token);
 }
 
 int follow_pipeline(struct token *token)
@@ -27,7 +27,6 @@ int follow_cmd(struct token *token)
 // fundec, shellcmd
 int follow_shellcmd_fundec(struct token *token)
 {
-    // TODO add redirection
     return follow_cmd(token) || follow_redirection(token);
 }
 
@@ -38,19 +37,16 @@ int follow_redirection(struct token *token)
 
 int follow_prefix(struct token *token)
 {
-    // TODO add prefix, elt
     return follow_cmd(token);
 }
 
 int follow_elt(struct token *token)
 {
-    // TODO add elt
     return follow_cmd(token);
 }
 
 int follow_compoundlist(struct token *token)
 {
-    // TODO do_group done follow_case_item
     return (token->type == TOKEN_RIGHT_ACC)
         || (token->type == TOKEN_RIGHT_PARENTHESIS)
         || (token->type == TOKEN_THEN) || follow_elseclause(token);

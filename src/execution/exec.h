@@ -10,6 +10,7 @@ int exec_all(struct vector *vector);
 
 int exec_node_command(struct ast_node *ast);
 int exec_node_if(struct ast_node *ast);
+int exec_node_while(struct ast_node *ast);
 int exec(struct ast_node *ast);
 
 #endif

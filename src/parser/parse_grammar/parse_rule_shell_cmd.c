@@ -59,7 +59,6 @@ struct parse_ast *parser_rules_shellcmd(struct lexer *lexer)
         if (parser->status == PARSER_OK)
         {
             token_free(tok);
-            token_free(lexer_pop(lexer));
             return parser;
         }
     }

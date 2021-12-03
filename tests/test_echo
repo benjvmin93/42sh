@@ -8,8 +8,6 @@ echo \\n;
 echo ok; echo \\n
 echo;
 echo echo ok;
- echo echo echo echo echo echo echo; echo ok
- echo echo\\n echo \\n echo '\\n' 'echo' \\n
 echo -e happy\\n
 echo -n happy\\n
 echo a echo b echo c

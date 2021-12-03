@@ -15,6 +15,7 @@
 int main(int argc, char **argv)
 {
     struct lexer *lexer = NULL;
+    int code_res = 0;
     if (argc == 1)
     {
         char *buf = NULL;
@@ -25,11 +26,15 @@ int main(int argc, char **argv)
             parser = parse(lexer);
             if (parser->status == PARSER_OK)
                 exec_all(parser->vector);
+            else
+                code_res = 1;
             n = 0;
             buf = NULL;
             lexer_free(lexer);
             vector_destroy(parser->vector);
+            free(parser);
         }
+        
 
         free(buf);
     }
@@ -42,8 +47,10 @@ int main(int argc, char **argv)
         parser = parse(lexer);
         if (parser->status == PARSER_OK)
             exec_all(parser->vector);
+        else
+            code_res = 1;
         lexer_free(lexer);
         vector_destroy(parser->vector);
     }
-    return parser->status;
+    return code_res;
 }

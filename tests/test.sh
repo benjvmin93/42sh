@@ -30,25 +30,27 @@ for f in $FILES; do
         echo "===============$f=============="
         echo ""
         while read expr; do
+            echo "-----------"
+            printf "TEST[${it}]: ${expr}\n"
             testres=$(${test} -c "${expr}")
-            codetest=$?
+            #codetest=$?
 
             refres=$(${ref} -c "${expr}")
-            coderef=$?
-            echo "-----------"
-            echo "TEST[${it}]: ${expr}"
-            if [ "$testres" != "$refres" ]; then
+            #coderef=$?
+                        if [ "$testres" != "$refres" ]; then
                 printf "  ${BLINK}${RED}FAILED${END}\n"
                 echo ""
-                echo "      expected : $refres"
+                echo "      expected : \n$refres"
                 echo "      got : $testres"
                 echo ""
-            elif [ "$codetest" -ne "$coderef" ]; then
-                printf "  ${BLINK}${RED}FAILED code ($codetest != $coderef)${END}\n"
-                echo ""
+            #elif [ "$codetest" -ne "$coderef" ]; then
+            #    printf "  ${BLINK}${RED}FAILED code ($codetest != $coderef)${END}\n"
+            #    echo ""
             else
                 success=$(($success + 1))
                 printf "  ${BLINK}${GREEN}SUCCESS${END}\n"
+                echo ""
+                echo "      got : \n$testres"
                 echo ""
             fi
             it=$(($it + 1))

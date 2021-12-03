@@ -1,3 +1,4 @@
+if true; then echo yes; fi
 if echo ok; then echo yes; fi
 if then ok fi
 if fi
@@ -6,3 +7,12 @@ fi
 then
 if                  echo ok;        then            echo yes            ;                               fi
 fi then
+if false; then echo false; elif true; echo YES; else echo not_reached; fi
+if true; then echo bar; elif echo foo; echo bar; else echo acu; fi
+if false; then echo false; elif true; then echo YES; else echo not_reached; fi
+if true; then echo bar; elif echo foo; then echo bar; else echo acu; fi
+if true; then echo foo; fi if echo vrai; then echo bar; else echo acu; fi
+if true; then echo foo; fi; if echo bar; then echo bar2; else echo acu; fi
+if true; then echo 'a';
+if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi
+if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi;

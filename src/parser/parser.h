@@ -51,9 +51,15 @@ struct parse_ast *parse_cmd(struct lexer *lexer);
 struct parse_ast *parse_pipeline(struct lexer *lexer);
 struct parse_ast *parse_and_or(struct lexer *lexer);
 struct parse_ast *parse_list(struct lexer *lexer);
+struct parse_ast *parse_dogroup(struct lexer *lexer);
 
-void handle_parse_error(void);
+void handle_parse_error(struct lexer *lexer);
+
+// FOLLOW
+
+int follow_elt(struct token *token);
 
 int is_assignment_word(struct lexer *lexer);
+int is_keyword(struct token *token);
 
 #endif

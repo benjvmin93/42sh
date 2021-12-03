@@ -47,8 +47,22 @@ struct parse_ast *parse_simplecmd(struct lexer *lexer)
     }
 
     int status_elt = PARSER_UNEXPECTED_TOKEN;
-    while (true)
+    struct token *tok = lexer_peek(lexer);
+    while (tok->type != TOKEN_SEMICOLON)
     {
+
+        if (status_prefix == PARSER_UNEXPECTED_TOKEN)
+            if (is_keyword(tok))
+            {
+                token_free(tok);
+                parser->status = PARSER_UNEXPECTED_TOKEN;
+                if (status_elt == PARSER_UNEXPECTED_TOKEN)
+                    free_node(cmd);
+                return parser;
+            }
+
+        token_free(tok);
+        tok = NULL;
         parser = parse_element(lexer);
         if (status_elt == PARSER_UNEXPECTED_TOKEN
             && parser->status == PARSER_OK)
@@ -57,13 +71,15 @@ struct parse_ast *parse_simplecmd(struct lexer *lexer)
         if (parser->status != PARSER_OK)
             break;
 
-        if (s)
-        {
-            s = xrealloc(s, (i + 1) * sizeof(char *));
-            s[i - 1] = strdup(lexer->current_tok->data);
-            s[i++] = NULL;
-        }
+        s = xrealloc(s, (i + 1) * sizeof(char *));
+        s[i - 1] = strdup(lexer->current_tok->data);
+        s[i++] = NULL;
+
+        tok = lexer_peek(lexer);
     }
+    if (tok)
+        token_free(tok);
+    //token_free(lexer_pop(lexer));
 
     if (status_prefix != PARSER_OK && status_elt != PARSER_OK)
     {

@@ -23,6 +23,27 @@ struct ast_node *ast_new_else(enum ast_type type)
     return NULL;
 }
 
+struct ast_node *ast_new_while(enum ast_type type)
+{
+    struct ast_node *ast = xmalloc(sizeof(struct ast_node));
+    ast->type = type;
+    ast->data.ast_while.cond = NULL;
+    ast->data.ast_while.body = NULL;
+    
+    return ast;
+}
+
+struct ast_node *ast_new_for(enum ast_type type)
+{
+    struct ast_node *ast = xmalloc(sizeof(struct ast_node));
+    ast->type = type;
+    ast->data.ast_for.name = NULL;
+    ast->data.ast_for.cond = NULL;
+    ast->data.ast_for.body = NULL;
+
+    return ast;
+}
+
 // Creates a new ast_cmd inside a struct ast_node
 struct ast_node *ast_new_cmd(enum ast_type type)
 {
@@ -46,7 +67,10 @@ struct function
 
 struct function funs[] = { { NODE_IF, &ast_new_if },
                            { NODE_ELSE, &ast_new_else },
-                           { NODE_COMMAND, &ast_new_cmd } };
+                           { NODE_COMMAND, &ast_new_cmd },
+                           { NODE_WHILE, &ast_new_while },
+                           { NODE_UNTIL, &ast_new_while },
+                           { NODE_FOR, &ast_new_for } };
 
 // Iterate through the function struct array funs
 // in order to find the specific ast_init function according to the type.
@@ -83,8 +107,34 @@ void free_node_if(struct ast_node *node)
 
     if (ast.body)
         free_node(ast.body);
-    free_node(ast.cond);
-    free_node(ast.then);
+    if (ast.cond)
+        free_node(ast.cond);
+    if (ast.then)
+        free_node(ast.then);
+    free(node);
+}
+
+void free_node_while(struct ast_node *node)
+{
+    struct ast_while ast = node->data.ast_while;
+
+    if (ast.body)
+        free_node(ast.body);
+    if (ast.cond)
+        free_node(ast.cond);
+    free(node);
+}
+
+void free_node_for(struct ast_node *node)
+{
+    struct ast_for ast = node->data.ast_for;
+    
+    if (ast.name)
+        free_node(ast.name);
+    if (ast.body)
+        free_node(ast.body);
+    if (ast.cond)
+        free_node(ast.cond);
     free(node);
 }
 
@@ -102,6 +152,14 @@ void free_node(struct ast_node *node)
     case NODE_IF:
         free_node_if(node);
         break;
+    case NODE_WHILE:
+        free_node_while(node);
+        break;
+    case NODE_UNTIL:
+        free_node_while(node);
+        break;
+    case NODE_FOR:
+        free_node_for(node);
     default:
         break;
     }

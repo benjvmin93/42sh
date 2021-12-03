@@ -16,6 +16,17 @@ enum token_type
     TOKEN_RIGHT_PARENTHESIS, // ')'
     TOKEN_LEFT_ACC, // '{'
     TOKEN_RIGHT_ACC, // '}'
+    TOKEN_CHEVRON_RIGHT, // '>'
+    TOKEN_CHEVRON_RIGHT_OR, // '>|'
+    TOKEN_DOUBLE_CHEVRON_RIGHT, // '>>'
+    TOKEN_CHEVRON_LEFT, // '<'
+    TOKEN_CHEVRON_LEFT_AND, // '<&'
+    TOKEN_CHEVRON_LEFT_AND_MINUS, // '<&-'
+    TOKEN_CHEVRON_RIGHT_AND, // '>&'
+    TOKEN_CHEVRON_RIGHT_AND_MINUS, // '>&-'
+    TOKEN_CHEVRON_LEFT_RIGHT, // '<>'
+    TOKEN_DOUBLE_CHEVRON_LEFT, // '<<'
+    TOKEN_DOUBLE_CHEVRON_LEFT_DASH, // '<<-'
     TOKEN_EOF, // EOF
     TOKEN_WORD, // WORD
     TOKEN_IF, // 'if'
@@ -26,14 +37,9 @@ enum token_type
     TOKEN_FOR, // 'for'
     TOKEN_WHILE, // 'while'
     TOKEN_UNTIL, // 'until'
-    TOKEN_CASE, // 'case'
-    TOKEN_CHEVRON_RIGHT, // '>'
-    TOKEN_CHEVRON_LEFT, // '<'
-    TOKEN_CHEVRON_RIGHT_AND, // '>&'
-    TOKEN_CHEVRON_LEFT_AND, // '<&'
-    TOKEN_DOUBLE_CHEVRON_RIGHT, // '>>'
-    TOKEN_CHEVRON_LEFT_RIGHT, // '<>'
-    TOKEN_CHEVRON_RIGHT_OR // '>|'
+    TOKEN_DO,   // 'do'
+    TOKEN_DONE, // 'done'
+    TOKEN_CASE // 'case'
 };
 
 struct token

@@ -1,5 +1,5 @@
 all_sources += files(
-    #'rules.c',
+    'rules.c',
 )
 
 subdir('parse_grammar')
