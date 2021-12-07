@@ -24,47 +24,40 @@ int is_rule(struct lexer *lexer)
     return 0;
 }
 
+
+struct parse_ast *parse_redirection_while(struct lexer *lexer)
+{
+    while (true)
+            {
+                parser = parse_redirection(lexer);
+                if (parser->status != PARSER_OK)
+                    break;
+                token_free(lexer_pop(lexer));
+            }
+            parser->status = PARSER_OK;
+            return parser;
+}
+
 struct parse_ast *parse_cmd(struct lexer *lexer)
 {
     if (is_rule(lexer))
     {
-        parser = parse_shellcmd(lexer);
+        parser = parse_shell_cmd(lexer);
         if (parser->status == PARSER_OK)
-        {
-            while (true)
-            {
-                parser = parse_redirection(lexer);
-                if (parser->status != PARSER_OK)
-                    break;
-                token_free(lexer_pop(lexer));
-            }
-            parser->status = PARSER_OK;
-            return parser;
-        }
+           return parse_redirection_while(lexer); 
     }
     else
     {
         struct parse_ast *tmp = parser;
-        parser = parse_simplecmd(lexer);
+        parser = parse_simple_cmd(lexer);
         if (parser->status == PARSER_OK)
             return parser;
 
         parser = tmp;
-        parser = parse_funcdec(lexer);
+        parser = parse_func_dec(lexer);
         if (parser->status == PARSER_OK)
-        {
-            while (true)
-            {
-                parser = parse_redirection(lexer);
-                if (parser->status != PARSER_OK)
-                    break;
-                token_free(lexer_pop(lexer));
-            }
-            parser->status = PARSER_OK;
-            return parser;
-        }
+            return parse_redirection_while(lexer);
     }
-
     parser->status = PARSER_UNEXPECTED_TOKEN;
     
     return parser;

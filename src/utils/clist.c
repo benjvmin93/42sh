@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-struct clist *init()
+struct clist *init_clist()
 {
     struct clist *string = malloc(sizeof(struct clist));
     if (!string)
@@ -22,7 +22,7 @@ void print_clist(struct clist *string)
 
 struct clist *cp_list(struct clist *string)
 {
-    struct clist *newstring = init();
+    struct clist *newstring = init_clist();
 
     newstring = app_str(newstring, string->data);
 
@@ -74,7 +74,7 @@ struct clist *add_spacestr(struct clist *sentence, char *str)
 
 struct clist *new_clist(struct clist *str)
 {
-    struct clist *tmp = init();
+    struct clist *tmp = init_clist();
 
     free_clist(str);
 

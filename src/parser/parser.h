@@ -19,6 +19,18 @@ enum parser_status
     PARSER_UNEXPECTED_TOKEN // 1
 };
 
+struct var
+{
+    char *name;
+    char *value;
+};
+
+struct variables
+{
+    struct vector *variables;
+    int is_assignment;
+};
+
 struct parse_ast
 {
     enum parser_status status;
@@ -34,25 +46,26 @@ void parser_free(struct parse_ast *parser);
 struct parse_ast *parse(struct lexer *lexer);
 void linebreak_while(struct lexer *lexer);
 struct parse_ast *parse_else_clause(struct lexer *lexer);
-struct parse_ast *parse_ruleif(struct lexer *lexer);
-struct parse_ast *parse_rulecase(struct lexer *lexer);
-struct parse_ast *parse_ruleuntil(struct lexer *lexer);
-struct parse_ast *parse_rulewhile(struct lexer *lexer);
-struct parse_ast *parse_rulefor(struct lexer *lexer);
-struct parse_ast *parse_compoundlist(struct lexer *lexer);
+struct parse_ast *parse_rule_if(struct lexer *lexer);
+struct parse_ast *parse_rule_case(struct lexer *lexer);
+struct parse_ast *parse_rule_until(struct lexer *lexer);
+struct parse_ast *parse_rule_while(struct lexer *lexer);
+struct parse_ast *parse_rule_for(struct lexer *lexer);
+struct parse_ast *parse_compound_list(struct lexer *lexer);
 struct parse_ast *parse_element(struct lexer *lexer);
 struct parse_ast *parse_prefix(struct lexer *lexer);
 struct parse_ast *parse_redirection(struct lexer *lexer);
-struct parse_ast *parse_funcdec(struct lexer *lexer);
-struct parse_ast *parse_shellcmd(struct lexer *lexer);
-struct parse_ast *parser_rules_shellcmd(struct lexer *lexer);
-struct parse_ast *parse_simplecmd(struct lexer *lexer);
+struct parse_ast *parse_func_dec(struct lexer *lexer);
+struct parse_ast *parse_shell_cmd(struct lexer *lexer);
+struct parse_ast *parser_rules_shell_cmd(struct lexer *lexer);
+struct parse_ast *parse_simple_cmd(struct lexer *lexer);
 struct parse_ast *parse_cmd(struct lexer *lexer);
 struct parse_ast *parse_pipeline(struct lexer *lexer);
 struct parse_ast *parse_and_or(struct lexer *lexer);
 struct parse_ast *parse_list(struct lexer *lexer);
-struct parse_ast *parse_dogroup(struct lexer *lexer);
+struct parse_ast *parse_do_group(struct lexer *lexer);
 
+struct parse_ast *send_error(struct lexer *lexer, char *str);
 void handle_parse_error(struct lexer *lexer);
 
 // FOLLOW

@@ -16,3 +16,8 @@ if true; then echo foo; fi; if echo bar; then echo bar2; else echo acu; fi
 if true; then echo 'a';
 if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi
 if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi;
+if true; then if echo a; then echo b; fi; fi;
+if false; then if echo a; then echo b; fi; else echo TRUE; fi;
+if true; then if echo a; then echo b; fi; elif false; then echo no_reached; fi;
+if true; then if echo a; then echo b; fi elif true; then echo a; fi
+if true; then if echo a; then echo b; fi fi;

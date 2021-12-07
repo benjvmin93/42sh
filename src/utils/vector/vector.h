@@ -28,6 +28,12 @@ struct vector *vector_init(size_t n, size_t size);
 void vector_destroy(struct vector *v);
 
 /*
+** Release the memory used by the vector.
+** Does nothing if `v` is `NULL`.
+** MADE FOR FREEING SHELL VARIABLES.
+*/
+void vector_destroy_variables(struct vector *v);
+/*
 ** Resize the vector to `n` capacity.
 ** Returns `NULL` if an error occured.
 */

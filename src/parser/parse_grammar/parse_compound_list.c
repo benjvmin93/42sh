@@ -23,7 +23,7 @@ int is_keyword(struct token *token)
  * [('&'|';'|'\n') ('\n')*]
  */
 
-struct parse_ast *parse_compoundlist(struct lexer *lexer)
+struct parse_ast *parse_compound_list(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LINE_BREAK)

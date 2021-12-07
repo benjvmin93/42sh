@@ -40,7 +40,7 @@ for f in $FILES; do
                         if [ "$testres" != "$refres" ]; then
                 printf "  ${BLINK}${RED}FAILED${END}\n"
                 echo ""
-                echo "      expected : \n$refres"
+                printf "      expected : \n$refres\n"
                 echo "      got : $testres"
                 echo ""
             #elif [ "$codetest" -ne "$coderef" ]; then

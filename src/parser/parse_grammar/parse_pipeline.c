@@ -13,13 +13,29 @@ struct parse_ast *parse_pipeline(struct lexer *lexer)
     if (parser->status != PARSER_OK)
         return parser;
 
+    struct token *tok = lexer_peek(lexer);
+    if (tok->type != TOKEN_PIPE)
+    {
+        token_free(tok);
+        parser->status = PARSER_OK;
+        return parser;
+    }
+    //token_free(tok);
+    token_free(lexer_pop(lexer));
+
+    struct ast_node *pipeline = ast_new(NODE_PIPELINE);
+
+    pipeline->data.ast_pipeline.argv = vector_append(pipeline->data.ast_pipeline.argv, parser->vector->data[parser->vector->size - 1]);
+    parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
+
     while (true)
     {
-        struct token *tok = lexer_peek(lexer);
+       
         if (tok->type != TOKEN_PIPE)
         {
             token_free(tok);
             parser->status = PARSER_OK;
+            parser->vector = vector_append(parser->vector, pipeline);
             return parser;
         }
         token_free(tok);
@@ -37,7 +53,17 @@ struct parse_ast *parse_pipeline(struct lexer *lexer)
         }
         parser = parse_cmd(lexer);
         if (parser->status != PARSER_OK)
+        {
+            token_free(tok);
             return parser;
+        }
+        
+        pipeline->data.ast_pipeline.argv = vector_append(pipeline->data.ast_pipeline.argv, parser->vector->data[parser->vector->size - 1]);
+        parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
+        tok = lexer_peek(lexer);
     }
+    token_free(tok);
+
+    parser->vector = vector_append(parser->vector, pipeline);
     return parser;
 }

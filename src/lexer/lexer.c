@@ -22,6 +22,31 @@ char *token_process(char *token, struct lexer *lexer, size_t *i)
 
     return token;
 }
+/*
+// SUBFUNCTION TO CUT ';', '&' or '|'.
+void cut_token_1(struct lexer *lexer, char *token, size_t *i)
+{
+    token = token_process(token, lexer, i);
+
+    if (lexer->input[lexer->pos] && lexer->input[lexer->pos - 1] == lexer->input[lexer->pos])
+        token = token_process(token, lexer, i);
+}
+
+// SUBFUNCTION TO CUT '>'.
+void cut_token_2(struct lexer *lexer, char *token, size_t *i)
+{
+    token = token_process(token, lexer, i);
+    if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
+        token = token_process(token, lexer, i);
+}
+
+// SUBFUNCTION TO CUT '<'.
+void cut_token_3(struct lexer *lexer, char *token, size_t *i)
+{
+    token = token_process(token, lexer, i);
+    if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>')
+        token = token_process(token, lexer, i);
+}*/
 
 char *cut_token(struct lexer *lexer)
 {
@@ -41,6 +66,8 @@ char *cut_token(struct lexer *lexer)
     {
         if (lexer->input[lexer->pos] == ' ')
             break;
+
+        // CUT_TOKEN_1 SUBFUNCTION.
         if (lexer->input[lexer->pos] == ';' || lexer->input[lexer->pos] == '&'
             || lexer->input[lexer->pos] == '|')
         {
@@ -51,31 +78,34 @@ char *cut_token(struct lexer *lexer)
             if (lexer->input[lexer->pos]
                 && lexer->input[lexer->pos - 1] == lexer->input[lexer->pos])
                 token = token_process(token, lexer, &i);
+            //cut_token_1(lexer, token, &i);
             break;
         }
         if (lexer->input[lexer->pos] == '\n')
         {
-            if (*token)
-                break;
-            else
-            {
-                token = token_process(token, lexer, &i);
-                break;
-            }
-        }
-
-        if (lexer->input[lexer->pos] == '>')
-        {
-            token = token_process(token, lexer, &i);
-            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
+            if (!*token)
                 token = token_process(token, lexer, &i);
             break;
         }
+
+        // CUT_TOKEN_2 SUBFUNCTION.
+        if (lexer->input[lexer->pos] == '>')
+        {
+            
+            token = token_process(token, lexer, &i);
+            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
+                token = token_process(token, lexer, &i);
+            //cut_token_2(lexer, token, &i);
+            break;
+        }
+
+        // CUT_TOKEN_3 SUBFUNCTION.
         if (lexer->input[lexer->pos] == '<')
         {
             token = token_process(token, lexer, &i);
             if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>')
                 token = token_process(token, lexer, &i);
+            //cut_token_3(lexer, token, &i);
             break;
         }
 

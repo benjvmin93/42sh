@@ -8,7 +8,18 @@ echo \\n;
 echo ok; echo \\n
 echo;
 echo echo ok;
-echo -e happy\\n
 echo -n happy\\n
 echo a echo b echo c
 echo a; echo b; echo c;
+echo foo; echo bar; echo foobar; echo LOVEAcus
+echo LOVEA\\bcus\\b
+echo \\\\n
+echo a;\\\\n
+echo if
+echo for
+echo echo while
+a="if true; then echo OK; else echo NOT; fi echo \$a
+a="if true; then echo OK; else echo NOT; fi"; echo \$a
+a='if'; echo $a; b="$a"; a="then"; echo $b $a
+a='if'; echo $a; b="$a"; a="then"; echo $b$a
+a='if'; echo $a; b="$a"; a="then"; echo \$b \$a;

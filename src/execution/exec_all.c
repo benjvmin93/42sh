@@ -1,4 +1,5 @@
 #include "exec.h"
+#include "redirections/redirections.h"
 
 int exec(struct ast_node *ast)
 {
@@ -15,6 +16,14 @@ int exec(struct ast_node *ast)
             return exec_node_while(ast);
         case NODE_UNTIL:
             return exec_node_while(ast);
+        case NODE_FOR:
+            return exec_node_for(ast);
+        case NODE_REDIR:
+            return exec_node_redirection(ast);
+        case NODE_PIPELINE:
+            return exec_node_pipeline(ast);
+        case NODE_VAR:
+            return exec_node_var(ast);
         default:
             return 1;
         }

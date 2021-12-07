@@ -1,6 +1,6 @@
 BUILD SYSTEM
 
-=>To commpile it
+=>To compile it
     -meson setup builddir(name of the directory to put the executable)
     -ninja -C builddir
 

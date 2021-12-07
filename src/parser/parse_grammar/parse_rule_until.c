@@ -2,7 +2,7 @@
 
 extern struct parse_ast *parser;
 
-struct parse_ast *parse_ruleuntil(struct lexer *lexer)
+struct parse_ast *parse_rule_until(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
     if (tok->type != TOKEN_UNTIL)
@@ -16,7 +16,7 @@ struct parse_ast *parse_ruleuntil(struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     struct ast_node *node_while = ast_new(NODE_UNTIL);
-    parser = parse_compoundlist(lexer);
+    parser = parse_compound_list(lexer);
 
     if (parser->status != PARSER_OK)
         return parser;
@@ -25,7 +25,7 @@ struct parse_ast *parse_ruleuntil(struct lexer *lexer)
         node_while->data.ast_while.cond = parser->vector->data[parser->vector->size - 1];
         parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
 
-        parser = parse_dogroup(lexer);
+        parser = parse_do_group(lexer);
         if (parser->status != PARSER_OK)
         {
             free_node(node_while);

@@ -9,7 +9,7 @@ struct clist
     size_t size_mal;
 };
 
-struct clist *init();
+struct clist *init_clist();
 void print_clist(struct clist *string);
 struct clist *cp_list(struct clist *string);
 struct clist *app_str(struct clist *string, char *str);

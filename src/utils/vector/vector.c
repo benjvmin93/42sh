@@ -1,5 +1,6 @@
 #include "vector.h"
 #include "../../ast/ast.h"
+#include "../../parser/parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,23 @@ void vector_destroy(struct vector *v)
     for (size_t i = 0; i < v->size; i++)
     {
         free_node(v->data[i]);
+    }
+    free(v->data);
+    free(v);
+}
+
+void vector_destroy_variables(struct vector *v)
+{
+    if (!v)
+        return;
+
+    struct var *var = NULL;
+    for (size_t i = 0; i < v->size; i++)
+    {
+        var = v->data[i];
+        free(var->name);
+        free(var->value);
+        free(var);
     }
     free(v->data);
     free(v);

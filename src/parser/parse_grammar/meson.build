@@ -20,5 +20,7 @@ all_sources += files(
     'parse_rule_while.c',
     'parse_shell_cmd.c',
     'parse_simple_cmd.c',
-    'parse_dogroup.c',
+    'parse_do_group.c',
 )
+
+subdir('redirections')

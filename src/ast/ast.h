@@ -13,11 +13,30 @@ enum ast_type
     NODE_ELSE,
     NODE_DOUBLE_AND,
     NODE_DOUBLE_PIPE,
-    NODE_PIPE,
     NODE_WHILE,
     NODE_UNTIL,
     NODE_FOR,
-    NODE_WORD
+    NODE_REDIR,
+    NODE_PIPELINE,
+    NODE_VAR
+};
+
+struct ast_var
+{
+    char *name;
+    char *value;
+};
+
+struct ast_pipeline
+{
+    struct vector *argv;
+};
+
+struct ast_redir
+{
+    char *left;
+    char *redirection;
+    char *right;
 };
 
 struct ast_cmd
@@ -44,7 +63,7 @@ struct ast_while
 };
 
 struct ast_for
-{ 
+{
     struct ast_node *name;
     struct ast_node *cond;
     struct ast_node *body;
@@ -57,6 +76,9 @@ union ast_data
     struct ast_else ast_else;
     struct ast_while ast_while;
     struct ast_for ast_for;
+    struct ast_redir ast_redir;
+    struct ast_pipeline ast_pipeline;
+    struct ast_var ast_var;
 };
 
 struct ast_node

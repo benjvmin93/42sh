@@ -12,13 +12,13 @@ extern struct parse_ast *parser;
  *      | rule_is
  */
 
-struct parse_ast *parse_shellcmd(struct lexer *lexer)
+struct parse_ast *parse_shell_cmd(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
     if (tok->type == TOKEN_LEFT_ACC)
     {
         token_free(lexer_pop(lexer));
-        parser = parse_compoundlist(lexer);
+        parser = parse_compound_list(lexer);
         if (parser->status != PARSER_OK)
             return parser;
 
@@ -39,7 +39,7 @@ struct parse_ast *parse_shellcmd(struct lexer *lexer)
     if (tok->type == TOKEN_LEFT_PARENTHESIS)
     {
         token_free(lexer_pop(lexer));
-        parser = parse_compoundlist(lexer);
+        parser = parse_compound_list(lexer);
         if (parser->status != PARSER_OK)
             return parser;
 
@@ -59,7 +59,7 @@ struct parse_ast *parse_shellcmd(struct lexer *lexer)
     else
         token_free(tok);
 
-    parser = parser_rules_shellcmd(lexer);
+    parser = parser_rules_shell_cmd(lexer);
 
     return parser;
 }

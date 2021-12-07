@@ -9,7 +9,7 @@ struct func
 
 struct func funcs[] = { { "echo", &echo },
                         {"true", &exec_true_false },
-                        {"true", &exec_true_false } };
+                        {"false", &exec_true_false } };
 
 int exec_node_command(struct ast_node *ast)
 {
@@ -17,12 +17,13 @@ int exec_node_command(struct ast_node *ast)
     if (!data)
         return 0;
 
+    data = expands_args(data);
+
     for (unsigned i = 0; i < sizeof(funcs) / sizeof(*funcs); i++)
     {
         if (!strcmp(data[0], funcs[i].name))
             return funcs[i].fun(data);
     }
-
     return exec_command(data);
 /*
     int b = strcmp(data[0], "echo");

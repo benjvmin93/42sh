@@ -62,6 +62,10 @@ struct token *token_new(char *input)
 
 void token_free(struct token *token)
 {
-    free(token->data);
-    free(token);
+    if (token)
+    {
+        free(token->data);
+        free(token);
+    }
+    token = NULL;
 }
