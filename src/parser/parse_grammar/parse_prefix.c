@@ -9,6 +9,8 @@ extern struct parse_ast *parser;
 struct parse_ast *parse_prefix(struct lexer *lexer)
 {
     int assign = is_assignment_word(lexer);
+    if (parser->status == PARSER_EXPECTING_TOKEN)
+        return parser;
     if (assign == 1)
     {
         parser->status = PARSER_OK;
@@ -20,7 +22,7 @@ struct parse_ast *parse_prefix(struct lexer *lexer)
         return parser;
     }
     else
-        parser = parse_redirection(lexer);
+        parser = parse_redirection_pref(lexer);
 
     return parser;
 }

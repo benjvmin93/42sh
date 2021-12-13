@@ -23,7 +23,6 @@ struct parse_ast *parse_func_dec(struct lexer *lexer)
         parser->status = PARSER_UNEXPECTED_TOKEN;
         return parser;*/
         return parse_unexpected_token(tok);
-
     }
     token_free(tok);
     token_free(lexer_pop(lexer));
@@ -35,7 +34,6 @@ struct parse_ast *parse_func_dec(struct lexer *lexer)
         parser->status = PARSER_UNEXPECTED_TOKEN;
         return parser;*/
         return parse_unexpected_token(tok);
-
     }
 
     token_free(lexer_pop(lexer));
@@ -43,9 +41,9 @@ struct parse_ast *parse_func_dec(struct lexer *lexer)
     tok = lexer_peek(lexer);
     if (tok->type != TOKEN_RIGHT_PARENTHESIS)
     {
-       /* token_free(tok);
-        parser->status = PARSER_UNEXPECTED_TOKEN;
-        return parser;*/
+        /* token_free(tok);
+         parser->status = PARSER_UNEXPECTED_TOKEN;
+         return parser;*/
         return parse_unexpected_token(tok);
     }
 

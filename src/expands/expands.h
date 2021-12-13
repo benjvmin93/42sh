@@ -7,8 +7,8 @@
 #include <string.h>
 
 #include "../ast/ast.h"
-#include "../parser/parser.h"
 #include "../lexer/lexer.h"
+#include "../parser/parser.h"
 #include "../utils/alloc.h"
 #include "../utils/vector/vector.h"
 

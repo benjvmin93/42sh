@@ -11,109 +11,166 @@
 #include "../lexer/lexer.h"
 #include "../parser/parser.h"
 #include "../utils/alloc.h"
+#include "../utils/vector/vector.h"
+#include "../variables/var.h"
 
 struct variables *variables = NULL;
 
-int main(int argc, char **argv)
+int annexe_file_interactive_mode(struct lexer *lexer, char *buf,
+                                 int index_error)
+{
+    int code_res = 0;
+    variables->is_assignment = 0;
+    lexer = lexer_new(buf);
+    parser = parse(lexer, index_error);
+    if (parser->status == PARSER_OK)
+    {
+        if (parser->vector->size)
+        {
+            code_res = exec_all(parser->vector);
+            struct var *var = variables->variables->data[0];
+            var->value = xrealloc(var->value, 64);
+            sprintf(var->value, "%d", code_res);
+        }
+    }
+    else if (parser->status != PARSER_OK)
+        code_res = 2;
+    lexer_free(lexer);
+    vector_destroy(parser->vector);
+    index_error++;
+    return code_res;
+}
+
+int interactive_mode(void)
 {
     struct lexer *lexer = NULL;
+    int index_error = 1;
+    int interactive_mode = 0;
     int code_res = 0;
-    // INTERACTIVE MODE
-    if (argc == 1)
-    {
-        variables = xmalloc(sizeof(struct variables));
-        variables->variables = vector_init(1, sizeof(struct var));
 
-        char *buf = NULL;
-        size_t n = 0;
-        //fprintf(stdout, "42sh$ ");
-        while (getline(&buf, &n, stdin) != -1)
-        {
-            variables->is_assignment = 0;
-            lexer = lexer_new(buf);
-            parser = parse(lexer);
-            if (parser->status == PARSER_OK)
-            {
-                if (parser->vector->size)
-                    exec_all(parser->vector);
-            }
-            else if (parser->status == PARSER_UNEXPECTED_TOKEN)
-                code_res = 1;
-            n = 0;
-            buf = NULL;
-            lexer_free(lexer);
-            vector_destroy(parser->vector);
-            free(parser);
-            //fprintf(stdout, "42sh$ ");
-        }
-        if (variables)
-            vector_destroy_variables(variables->variables);
-        
-        free(buf);
-    }
-    else
+    interactive_mode = isatty(fileno(stdin));
+
+    char *buf = NULL;
+    size_t n = 0;
+    if (interactive_mode)
+        fprintf(stdout, "42sh$ ");
+    while (getline(&buf, &n, stdin) != -1)
     {
-        // STRING MODE
-        if (argv[1][0] == '-' && argv[1][1] == 'c')
-        {   
-            variables = xmalloc(sizeof(struct variables));
-            variables->variables = vector_init(1, sizeof(struct var));
+        code_res = annexe_file_interactive_mode(lexer, buf, index_error);
+        n = 0;
+        if (interactive_mode)
+            fprintf(stdout, "42sh$ ");
+        free(parser);
+    }
+    if (variables)
+        vector_destroy_variables(variables->variables);
+
+    free(buf);
+
+    return code_res;
+}
+
+char *string_file(FILE *file)
+{
+    char buf = fgetc(file);
+    char *c = NULL;
+    size_t i = 0;
+    while (buf != EOF)
+    {
+        c = realloc(c, sizeof(char) * (i + 1));
+        if (c == NULL)
+            fprintf(stderr, "fail to malloc");
+        c[i] = buf;
+        i++;
+        buf = fgetc(file);
+    }
+    c = realloc(c, sizeof(char) * (i + 1));
+    c[i] = '\0';
+
+    return c;
+}
+
+int file_mode(char **argv)
+{
+    struct lexer *lexer = NULL;
+    int index_error = 1;
+    int code_res = 0;
+
+    FILE *fp = fopen(argv[1], "r");
+    char *buf = string_file(fp);
+    code_res = annexe_file_interactive_mode(lexer, buf, index_error);
+
+    if (parser->status != PARSER_OK)
+        code_res = 2;
+    free(parser);
+    if (variables)
+        vector_destroy_variables(variables->variables);
+    return code_res;
+}
+
+int string_mode(int argc, char **argv)
+{
+    struct lexer *lexer = NULL;
+    int index_error = 1;
+    int code_res = 0;
+
+    if (argv[1] && *argv[1] == '-')
+    {
+        if (argv[1][1] == 'c')
+        {
             if (!*(argv + 2))
                 errx(2, "Usage: ./42sh [OPTIONS] [SCRIPT] [ARGUMENTS ...]");
             char *input = strdup(argv[2]);
             variables->is_assignment = 0;
             lexer = lexer_new(input);
-            parser = parse(lexer);
+            parser = parse(lexer, index_error);
             if (parser->status == PARSER_OK)
             {
                 if (parser->vector->size)
-                    exec_all(parser->vector);
+                {
+                    code_res = exec_all(parser->vector);
+                    struct var *var = variables->variables->data[0];
+                    sprintf(var->value, "%d", code_res);
+                }
             }
-            else if (parser->status == PARSER_UNEXPECTED_TOKEN)
-                code_res = 1;
+            else
+                code_res = 2;
             lexer_free(lexer);
             vector_destroy(parser->vector);
+            free(parser);
             if (variables)
                 vector_destroy_variables(variables->variables);
-            free(parser);
         }
-        // SHELL FILE MODE
-        else if (argv[1] && *argv[1] != '-')
-        {
-            FILE *f = fopen(argv[1], "r");
-            if (!f)
-                err(1, "%s", argv[2]);
-            
-            variables = xmalloc(sizeof(struct variables));
-            variables->variables = vector_init(1, sizeof(struct var));
-            char *buf = NULL;
-            size_t n = 0;
-            while (getline(&buf, &n, f) != -1)
-            {
-            variables->is_assignment = 0;
-            lexer = lexer_new(buf);
-            parser = parse(lexer);
-            if (parser->status == PARSER_OK)
-            {
-                if (parser->vector->size)
-                    exec_all(parser->vector);
-            }
-            else if (parser->status == PARSER_UNEXPECTED_TOKEN)
-                code_res = 1;
-            n = 0;
-            buf = NULL;
-            lexer_free(lexer);
-            vector_destroy(parser->vector);
-            free(parser);
-        }
-
-        if (variables)
-            vector_destroy_variables(variables->variables);
-        
-        free(buf);
-        }
+        else
+            errx(2, "Usage: ./42sh [OPTIONS] [SCRIPT] [ARGUMENTS ...]");
     }
+    else
+        errx(2, "Usage: ./42sh [OPTIONS] [SCRIPT] [ARGUMENTS ...]");
+
+    argc++;
+    return code_res;
+}
+
+int main(int argc, char **argv)
+{
+    int res = 0;
+    variables = init_variables(argc, argv);
+    /**
+     * INTERACTIVE MODE
+     */
+    if (argc == 1)
+        res = interactive_mode();
+    /**
+     * FILE MODE
+     */
+    else if (argc == 2)
+        res = file_mode(argv);
+    /**
+     * STRING MODE
+     */
+    else
+        res = string_mode(argc, argv);
 
     free(variables);
-    return code_res;
+    return res;
 }

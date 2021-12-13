@@ -25,6 +25,7 @@ enum token_type token_type(char *str)
                                           { "\n", TOKEN_LINE_BREAK },
                                           { "'", TOKEN_SIMPLE_QUOTE },
                                           { "&", TOKEN_AND },
+                                          { "!", TOKEN_NOT },
                                           { "&&", TOKEN_DOUBLE_AND },
                                           { "|", TOKEN_PIPE },
                                           { "||", TOKEN_DOUBLE_PIPE },

@@ -1,0 +1,24 @@
+while
+while true
+while true;
+while; do echo a; done
+while true; echo a; done
+while true; do echo a;
+while false; do echo a; done
+.while false; do echo a; done
+a=true; while a; do a=false; done
+a=false; while a; do a=true; done
+a=true; b=true; while a; do echo ok; b=false; done
+while false; do \\n \\n \\n echo a \\n done
+while false \\n do \\n echo a \\n done
+while false; do echo a; \\n done \\n \\n
+.until
+.until true
+.until true;
+.until false; do echo a; done
+.until false do echo a; done
+.until false; do echo a done
+.until false; do; echo a; done
+.until true; do echo a; done
+until true; do echo a; done
+until true \\n do \\n echo a \\n done

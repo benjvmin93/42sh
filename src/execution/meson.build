@@ -7,4 +7,9 @@ all_sources += files(
     'exec_node_pipeline.c',
     'exec_node_var.c',
     'exec_node_redirection.c',
+    'exec_node_not.c',
+    'exec_node_andor.c',
+    'exec_node_else.c',
 )
+
+subdir('redirections')

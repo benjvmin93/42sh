@@ -28,7 +28,7 @@ summary({
 
 
 # add some project-wide flags
-cflags = ['-D_GNU_SOURCE', '-D_POSIX_C_SOURCE=200809L']
+cflags = ['-D_POSIX_C_SOURCE=200809L']
 add_project_arguments(cflags, language: 'c')
 
 
@@ -65,7 +65,3 @@ custom_target(
     # if this option is enabled, tests will run for all builds
     build_by_default: get_option('force_check'),
 )
-
-if get_option('doc')
-    subdir('doc')
-endif

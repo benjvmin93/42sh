@@ -1,10 +1,11 @@
 #include "vector.h"
-#include "../../ast/ast.h"
-#include "../../parser/parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "../../ast/ast.h"
+#include "../../parser/parser.h"
 
 struct vector *vector_init(size_t n, size_t size)
 {
@@ -148,13 +149,12 @@ struct vector *vector_remove(struct vector *v, size_t i)
     struct vector *new = vector_init(v->size, v->size_data);
     for (size_t j = 0; j < v->size - 1; j++)
     {
-        
         if (j >= i)
             new = vector_append(new, v->data[j + 1]);
         else
             new = vector_append(new, v->data[j]);
     }
-    
+
     free(v->data);
     free(v);
     return new;

@@ -1,2 +1,0 @@
-while true; echo a; done
-while true; do echo a;

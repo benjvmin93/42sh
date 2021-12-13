@@ -2,12 +2,20 @@
 
 int exec_node_if(struct ast_node *ast)
 {
-    int res = exec(ast->data.ast_if.cond);
-
+    int res;
+    struct ast_node *node = NULL;
+    for (size_t i = 0; i < ast->data.ast_if.cond->size; i++)
+    {
+        node = ast->data.ast_if.cond->data[i];
+        if (node)
+            res = exec(node);
+    }
     if (!res)
-        res = exec(ast->data.ast_if.then);
+    {
+        for (size_t i = 0; i < ast->data.ast_if.then->size; i++)
+            res = exec(ast->data.ast_if.then->data[i]);
+    }
     else
         res = exec(ast->data.ast_if.body);
-
     return res;
 }

@@ -2,10 +2,11 @@
 
 extern struct parse_ast *parser;
 
-
 int is_keyword(struct token *token)
 {
-    char *exprs[] = { "if", "then", "else", "elif", "fi", "do", "!", "!", "while", "case", "for", "{", "}", "done", "until", "esac"};
+    char *exprs[] = { "if", "then", "else",  "elif", "fi",  "do",
+                      "!",  "!",    "while", "case", "for", "{",
+                      "}",  "done", "until", "esac" };
 
     for (unsigned i = 0; i < sizeof(exprs) / sizeof(*exprs); i++)
     {
@@ -62,14 +63,14 @@ struct parse_ast *parse_compound_list(struct lexer *lexer)
         parser = parse_and_or(lexer);
         if (parser->status != PARSER_OK)
         {
-            //token_free(lexer_pop(lexer));
+            // token_free(lexer_pop(lexer));
             parser->status = PARSER_OK;
             return parser;
         }
     }
 
     token_free(tok);
-    
+
     parser->status = PARSER_OK;
     return parser;
 }

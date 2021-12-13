@@ -8,31 +8,56 @@ struct func
 };
 
 struct func funcs[] = { { "echo", &echo },
-                        {"true", &exec_true_false },
-                        {"false", &exec_true_false } };
+                        { "true", &exec_true_false },
+                        { "false", &exec_true_false } };
+
+void free_list(char **argv)
+{
+    char **list = argv;
+
+    if (list)
+    {
+        while (*list)
+        {
+            char *tmp = *list;
+            free(tmp);
+            list++;
+        }
+    }
+
+    free(argv);
+}
 
 int exec_node_command(struct ast_node *ast)
 {
     char **data = ast->data.ast_cmd.argv;
-    if (!data)
+
+    char **c = NULL;
+    size_t j = 1;
+    while (data[j - 1] != NULL)
+    {
+        c = xrealloc(c, sizeof(char *) * (j + 1));
+        c[j - 1] = strdup(data[j - 1]);
+        c[j++] = NULL;
+    }
+
+    if (!c)
         return 0;
 
-    data = expands_args(data);
+    c = expands_args(c);
+    int res = 0;
 
     for (unsigned i = 0; i < sizeof(funcs) / sizeof(*funcs); i++)
     {
         if (!strcmp(data[0], funcs[i].name))
-            return funcs[i].fun(data);
+        {
+            res = funcs[i].fun(c);
+            free_list(c);
+            return res;
+        }
     }
-    return exec_command(data);
-/*
-    int b = strcmp(data[0], "echo");
-    switch (b)
-    {
-    case 0:
-        return echo(data);
-    default:
-        return exec_command(data);
-    }
-    */
+
+    res = exec_command(c);
+    free_list(c);
+    return res;
 }

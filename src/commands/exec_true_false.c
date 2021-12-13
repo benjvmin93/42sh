@@ -1,7 +1,7 @@
-#include "exec_commands.h"
-
 #include <stdio.h>
 #include <string.h>
+
+#include "exec_commands.h"
 
 int exec_true_false(char **argv)
 {

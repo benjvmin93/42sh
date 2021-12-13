@@ -18,6 +18,7 @@ struct parse_ast *parse_rule_while(struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     struct ast_node *node_while = ast_new(NODE_WHILE);
+    size_t old_vect_size = parser->vector->size;
     parser = parse_compound_list(lexer);
 
     if (parser->status != PARSER_OK)
@@ -27,9 +28,10 @@ struct parse_ast *parse_rule_while(struct lexer *lexer)
     }
     else
     {
-        node_while->data.ast_while.cond = parser->vector->data[parser->vector->size - 1];
-        parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
+        node_while->data.ast_while.cond = append_node(node_while->data.ast_while.cond, old_vect_size);
 
+
+        old_vect_size = parser->vector->size;
         parser = parse_do_group(lexer);
         if (parser->status != PARSER_OK)
         {
@@ -37,10 +39,9 @@ struct parse_ast *parse_rule_while(struct lexer *lexer)
             return parser;
         }
 
-        node_while->data.ast_while.body = parser->vector->data[parser->vector->size - 1];
-        parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
+        node_while->data.ast_while.body = append_node(node_while->data.ast_while.body, old_vect_size);
     }
-    
+
     parser->vector = vector_append(parser->vector, node_while);
     parser->status = PARSER_OK;
     return parser;

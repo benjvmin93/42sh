@@ -1,0 +1,26 @@
+echo a && echo b
+echo a || echo b
+echo a &&
+echo a || 
+echo a && echo b && echo c && echo d
+echo a && echo b && echo c || echo d
+echo a && echo b || echo c || echo d
+echo a && echo b || echo c && echo d
+echo a || echo b || echo c || echo d
+echo a || echo b || echo c && echo d
+echo a || echo b && echo c && echo d
+echo a || echo b && echo c || echo d
+false || true
+true || false
+false && true
+true && false
+echo a && \\n echo b
+echo a && \\n \\n echo b
+echo a \\n && echo b;
+echo a; && echo b;
+echo a; && echo b;
+echo a; || echo b;
+echo a; &&
+echo a; || 
+echo a; && echo b; && echo c; || echo d;
+echo a; || echo b; && echo c; || echo d;

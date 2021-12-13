@@ -8,29 +8,48 @@ extern struct parse_ast *parser;
 
 struct parse_ast *parse_pipeline(struct lexer *lexer)
 {
-    // TODO add not !
+    struct ast_node *ast_not = NULL;
+    struct token *tok = lexer_peek(lexer);
+    if (tok->type == TOKEN_NOT)
+    {
+        ast_not = ast_new(NODE_NOT);
+        token_free(lexer_pop(lexer));
+    }
+
+    token_free(tok);
+
     parser = parse_cmd(lexer);
+    if (ast_not != NULL && parser->status == PARSER_OK)
+    {
+        ast_not->data.ast_not.ast_cmd =
+            parser->vector->data[parser->vector->size - 1];
+        parser->vector =
+            vector_remove(parser->vector, parser->vector->size - 1);
+        parser->vector = vector_append(parser->vector, ast_not);
+    }
+
     if (parser->status != PARSER_OK)
         return parser;
 
-    struct token *tok = lexer_peek(lexer);
+    tok = lexer_peek(lexer);
     if (tok->type != TOKEN_PIPE)
     {
         token_free(tok);
         parser->status = PARSER_OK;
         return parser;
     }
-    //token_free(tok);
+    // token_free(tok);
     token_free(lexer_pop(lexer));
 
     struct ast_node *pipeline = ast_new(NODE_PIPELINE);
 
-    pipeline->data.ast_pipeline.argv = vector_append(pipeline->data.ast_pipeline.argv, parser->vector->data[parser->vector->size - 1]);
+    pipeline->data.ast_pipeline.argv =
+        vector_append(pipeline->data.ast_pipeline.argv,
+                      parser->vector->data[parser->vector->size - 1]);
     parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
 
     while (true)
     {
-       
         if (tok->type != TOKEN_PIPE)
         {
             token_free(tok);
@@ -57,9 +76,12 @@ struct parse_ast *parse_pipeline(struct lexer *lexer)
             token_free(tok);
             return parser;
         }
-        
-        pipeline->data.ast_pipeline.argv = vector_append(pipeline->data.ast_pipeline.argv, parser->vector->data[parser->vector->size - 1]);
-        parser->vector = vector_remove(parser->vector, parser->vector->size - 1);
+
+        pipeline->data.ast_pipeline.argv =
+            vector_append(pipeline->data.ast_pipeline.argv,
+                          parser->vector->data[parser->vector->size - 1]);
+        parser->vector =
+            vector_remove(parser->vector, parser->vector->size - 1);
         tok = lexer_peek(lexer);
     }
     token_free(tok);

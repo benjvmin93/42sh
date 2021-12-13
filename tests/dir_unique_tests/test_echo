@@ -1,0 +1,48 @@
+echo oui
+echo                    oui
+           echo            ok
+
+echo 1
+echo 1 2
+echo 1 2 3
+echo 1 2 3 4
+echo ok;
+echo ok; echo oui
+echo \\n;
+echo ok; echo \\n
+echo;
+echo echo ok;
+echo -n happy\\n
+echo -n happy
+echo -e '#ceci est un commentaire \nma deuxième ligne'
+echo -e -n '#ceci est un commentaire \nma deuxième ligne'
+echo -ne '#ceci est un commentaire \nma deuxième ligne'
+echo -en '#ceci est un commentaire \nma deuxième ligne'
+echo -E "test\tLinux"
+echo a echo b echo c
+echo a; echo b; echo c;
+echo foo; echo bar; echo foobar; echo LOVEAcus
+echo LOVEA\\bcus\\b
+echo "LOVEA\\bcus\\b"
+echo a;\\\\n
+echo if
+echo for
+echo echo while
+echo a; echo
+echo; echo b;
+echo a echo b echo c
+echo a \\n echo b \\n echo c
+echo \\\\n
+a="if true; then echo OK; else echo NOT; fi echo \$a
+a="if true; then echo OK; else echo NOT; fi"; echo \$a
+a='if'; echo $a; b="$a"; a="then"; echo $b $a
+a='if'; echo $a; b="$a"; a="then"; echo $b$a
+a='if'; echo $a; b="$a"; a="then"; echo \$b \$a;
+echo \\n
+echo "\\n"
+echo '\\n'
+echo \"\\n\"
+echo \'\\n\'
+echo \"\n\n\n\n\n\npouf\"
+echo \"\\n\\n\\n\\n\\n\\npouf\"
+

@@ -1,0 +1,45 @@
+> foo; cat foo
+echo a > foo; cat foo
+echo a > foo bar; cat foo
+echo a >
+echo "bonjour" > foo cat foo
+echo "bonjour" > foo; cat foo
+echo a >foo; cat foo
+echo a > foo; cat foo
+echo a 8>foo; cat foo
+echo a 8> foo; cat foo
+echo a <foo
+echo a < foo
+echo a 8<foo
+echo a 8< foo
+echo a >&foo; cat foo
+echo a >& foo; cat foo
+echo a 8>&foo; cat foo
+echo a 8>& foo; cat foo
+echo a <&foo
+echo a <& foo
+echo a <&foo
+echo a 8<& foo
+echo a >> foo; cat foo; rm foo
+echo a >> foo; cat foo; rm foo 
+echo a 1>>foo; cat foo rm foo; rm foo
+echo a 1>>foo; cat foo; rm foo
+echo a 1>> foo; cat foo; rm foo
+echo a 0>>foo; cat foo rm foo
+echo a 0>>foo; cat foo; rm foo
+echo a 0>> foo; cat foo; rm foo
+echo a 8>>foo; cat foo rm foo
+echo a 8>>foo; cat foo; rm foo
+echo a 8>> foo; cat foo; rm foo
+echo a <>foo; cat foo
+echo a <> foo; cat foo
+echo a 8<>foo; cat foo
+echo a 8<> foo; cat foo
+echo a >|foo; cat foo;
+echo a >| foo; cat foo
+echo a 8>|foo; cat foo
+echo a 8>| foo; cat foo
+echo a 8>|
+grep -LKQLSDA 2> err; cat err; rm err;
+grep -AEA 2>> err; cat err; rm err;
+grep -AEA 1>> err; cat err; rm err;

@@ -1,71 +1,78 @@
-#include "../../parser.h"
-#include "redirections.h"
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#define _POSIX_C_SOURCE 200809L
+
+#include <errno.h>
 #include <stdio.h>
-#include <err.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-int my_redir(char **argv)
-{
-    if (! argv[1])
-        return -1;
-    int out = open(argv[1], O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (out == -1)
-    {
-        fprintf(stderr, "Failed to open '%s'\n", argv[2]);
-        return 2;
-    }
-
-    int out_dup;
-    int status;
-    pid_t pid;
-
-    if ((pid = fork()) < 0)
-        return 1;
-
-    if (pid == 0)
-    {
-        if ((out_dup = dup2(out, 1)) != 1)
-        {
-            fprintf(stderr, "Failed to duplicate file descriptor\n");
-            return 1;
-        }
-        close(out);
-        
-        if (argv[2])
-        {
-            if (execvp(argv[2], argv + 2) == -1)
-            {
-                fprintf(stderr, "Execvp failed\n");
-                return 127;
-            }
-        }
-    }
-    else
-    {
-        while (wait(&status) != pid)
-            ;
-    }
-    close(out_dup);
-    fprintf(stdout, "%s exited with %d!\n", argv[2], status);
-    
-    return status;
-}
+#include "redirections.h"
 
 int redir_chevron_right(struct ast_node *ast)
 {
-    char *arg_left = ast->data.ast_redir.left;
-    char *arg_right = ast->data.ast_redir.right;
-    char *argv[3] = { NULL };
-    argv[0] = arg_right;
-
-    if (arg_left)
-    {
-        argv[1] = arg_left;
-    }
+    struct ast_redir node = ast->data.ast_redir;
+    FILE *out = fopen(node.right, "w+");
     
-    return my_redir(argv);
+    if (!node.left)
+        return 0;
+
+    char **cmd = node.left->data.ast_cmd.argv;
+    int io_number;
+    
+    if (node.io_number != -1)
+        io_number = node.io_number;
+    else
+        io_number = STDOUT_FILENO;
+
+    int out_dup = 0;
+    int status = 0;
+    pid_t pid;
+
+    if ((pid = fork()) < 0)
+    {
+        warn("Failed to create child process");
+        exit(errno);
+    }
+    if (pid == 0)
+    {
+        if ((out_dup = dup2(fileno(out), io_number)) == -1)
+        {
+            warnx("Failed to duplicate file descriptor");
+            exit(errno);
+        }
+        if (fclose(out) < 0)
+        {
+            warn("Failed to close file descriptor");
+            exit(errno);
+        }
+
+        execvp(*cmd, cmd);
+        warn("%s", *cmd);
+        exit(errno);
+    }
+
+    waitpid(pid, &status, 0);
+
+    fflush(stdout);
+    close(out_dup);
+
+    return status;
+
 }
+/*
+int main(void)
+{   
+    struct ast_node cmd;
+    cmd.data.ast_cmd.argv = xmalloc(3 * sizeof(char *));
+    cmd.data.ast_cmd.argv[0] = "echo";
+    cmd.data.ast_cmd.argv[1] = "teub";
+    cmd.data.ast_cmd.argv[2] = NULL;
+    struct ast_node ast;
+    ast.data.ast_redir.io_number = -1;
+    ast.data.ast_redir.right = "foo";
+    ast.data.ast_redir.left = &cmd;
+
+    int res = redir_chevron_right(&ast);
+
+    free(cmd.data.ast_cmd.argv);
+    return res;
+}*/

@@ -1,0 +1,16 @@
+echo abcd
+echo "abcd"
+echo a >echo
+ls
+cat echo
+echo okok >foo
+echo okok 0>foo
+echo okok 0> foo
+echo "YESSSS1" >> foo
+echo YESSSS2 >> foo
+cat foo
+tree
+abcd
+a=5
+$a
+echo $a

@@ -18,7 +18,7 @@ int exec_node_var(struct ast_node *ast)
 
             free(data->value);
             data->value = new_str_exp[0];
-            return 1;
+            return 0;
         }
     }
 
@@ -32,5 +32,5 @@ int exec_node_var(struct ast_node *ast)
 
     variables->variables = vector_append(variables->variables, new_var);
     variables->is_assignment = 1;
-    return 1;
+    return 0;
 }

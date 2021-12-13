@@ -10,7 +10,7 @@ int follow_list(struct token *token)
 
 int follow_andor(struct token *token)
 {
-    //token->type == TOKEN_SEMICOLON
+    // token->type == TOKEN_SEMICOLON
     return (token->type == TOKEN_AND) || follow_list(token);
 }
 

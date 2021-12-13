@@ -1,6 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
+#include "../utils/alloc.h"
+#include "../utils/clist.h"
 #include "exec_commands.h"
 
 // Check if the string at index argv + 1 is an option of type "-n" || "-e" ||
@@ -10,7 +14,7 @@ int is_opt(char *str)
     if (!str)
         return 0;
     if (*str == '-'
-            && (*(str + 1) == 'n' || *(str + 1) == 'e' || *(str + 1) == 'E'))
+        && (*(str + 1) == 'n' || *(str + 1) == 'e' || *(str + 1) == 'E'))
         return 1;
 
     return 0;
@@ -54,133 +58,153 @@ int is_escape_char(char c)
 {
     switch (c)
     {
-        case '\a':
-            return 'a';
-        case '\b':
-            return 'b';
-        case '\t':
-            return 't';
-        case '\n':
-            return 'n';
-        case '\v':
-            return 'v';
-        case '\f':
-            return 'f';
-        case '\r':
-            return 'r';
-        case '\\':
-            return '\\';
-        default:
-            return 0;
+    case '\a':
+        return 'a';
+    case '\b':
+        return 'b';
+    case '\t':
+        return 't';
+    case '\n':
+        return 'n';
+    case '\v':
+        return 'v';
+    case '\f':
+        return 'f';
+    case '\r':
+        return 'r';
+    case '\\':
+        return '\\';
+    default:
+        return 0;
+    }
+}
+
+void processStr(char *src, struct clist *dest)
+{
+    size_t i = 0;
+    int cur = 0;
+    int clen;
+    char code[5];
+
+    for (; i < strlen(src); i++)
+    {
+        if (cur == 0)
+        {
+            if (src[i] != '\\')
+                dest = app_char(dest, src[i]);
+            else
+                cur = 1;
+        }
+        else if (cur == 1)
+        {
+            switch (src[i])
+            {
+            case 'b':
+                dest = app_char(dest, '\b');
+                break;
+            case 't':
+                dest = app_char(dest, '\t');
+                break;
+            case 'v':
+                dest = app_char(dest, '\v');
+                break;
+            case 'a':
+                dest = app_char(dest, '\a');
+                break;
+            case 'n':
+                dest = app_char(dest, '\n');
+                break;
+            case '\\':
+                dest = app_char(dest, '\\');
+                break;
+            case '0':
+                cur = 2;
+                clen = 0;
+                code[clen++] = '0';
+                break;
+            default:
+                // dst[j++] = '\\';
+                dest = app_char(dest, src[i]);
+            }
+
+            if (cur == 1)
+                cur = 0;
+        }
+        else if (cur == 2)
+        {
+            if (src[i] >= '0' && src[i] <= '9')
+                code[clen++] = src[i];
+            else
+            {
+                code[clen] = 0;
+                dest = app_char(dest, (char)atoi(code));
+                if (src[i] == '\\')
+                    cur = 1;
+                else
+                {
+                    dest = app_char(dest, src[i]);
+                    cur = 0;
+                }
+            }
+        }
+    }
+
+    if (cur == 2)
+    {
+        code[clen] = 0;
+        dest = app_char(dest, (char)atoi(code));
+    }
+}
+
+void process_escape(char *src, struct clist *dest)
+{
+    for (size_t i = 0; src[i]; i++)
+    {
+        char escape_char = is_escape_char(src[i]);
+        if (escape_char != '\\')
+        {
+            if (escape_char)
+                dest = app_char(dest, escape_char);
+            else
+                dest = app_char(dest, src[i]);
+        }
     }
 }
 
 int echo(char **argv)
 {
-    // Initialization of booleans in order to know which options are asked by
-    // the user.
+    struct clist *res = init_clist();
     int no_newline = 0;
     int escape = 1;
-
-    // Return value of parse_opt function.
     int opt_res = 0;
+    size_t i = 1;
 
-    char res[256] = { 0 };
+    while (is_opt(argv[i])
+           && (opt_res = parse_opt(argv[i], &no_newline, &escape)))
+        i++;
 
-    // We know it's echo command, so we juste move to the next string to parse
-    // its arguments.
-    argv++;
-
-    // Here, parse_opt return value indicates if the string is a valid option
-    // sequence and change the values of the option booleans. If the string is
-    // an option and a valid option sequence, we move to the next string and
-    // repeat the process.
-    while (is_opt(*argv) && (opt_res = parse_opt(*argv, &no_newline, &escape)))
-        argv++;
-
-    size_t i = 0;
-    size_t j = 0;
-    size_t r = 0;
-    int simple_quotes = 0;
-    int double_quotes = 0;
-    char escape_char = 0;
-    if (escape)
+    for (; argv[i]; i++)
     {
-        for (; argv[i]; i++)
-        {
-            simple_quotes = (argv[i][j] == '\'');
-            double_quotes = (argv[i][j] == '"');
-            if (simple_quotes || double_quotes)
-                j = 1;
+        /*
+        if (escape)
+            process_escape(argv[i], res);
+        else
+            processStr(argv[i], res);
+*/
+        if (escape)
+            res = app_str(res, argv[i]);
+        else
+            processStr(argv[i], res);
 
-            for (; argv[i][j]; j++)
-            {
-                escape_char = is_escape_char(argv[i][j]);
-                if (escape_char)
-                {
-                    if (escape_char != '\\')
-                        res[r++] = escape_char;
-                }
-                else
-                    res[r++] = argv[i][j];
-                res[r] = 0;
-            }
-
-            if (argv[i + 1])
-                printf("%s ", res);
-            else
-            {
-                if (no_newline)
-                    printf("%s", res);
-                else
-                    printf("%s\n", res);
-            }
-            j = 0;
-            r = 0;
-        }
+        printf("%s", res->data);
+        if (argv[i + 1])
+            printf(" ");
+        res = new_clist(res);
     }
-    else
-    {
-        for (; argv[i]; i++)
-        {
+    if (!no_newline)
+        putchar('\n');
 
-            simple_quotes = (argv[i][j] == '\'');
-            double_quotes = (argv[i][j] == '"');
-            if (simple_quotes || double_quotes)
-                j = 1;
+    free_clist(res);
 
-            for (; argv[i][j]; j++)
-            {
-                escape_char = is_escape_char(argv[i][j]);
-                if (escape_char)
-                {
-                    if (escape_char != '\\')
-                        res[r++] = escape_char;
-                }
-                else
-                    res[r++] = argv[i][j];
-                res[r] = 0;
-            }
-            if (argv[i + 1])
-                printf("%s ", res);
-            else
-            {
-                if (no_newline)
-                    printf("%s", res);
-                else
-                    printf("%s\n", res);
-            }
-            j = 0;
-            r = 0;
-        }
-    }
-        return 0;
+    return 0;
 }
-
-/*
-int main(void)
-    {
-        char *argv[] = { "echo", "-e", "\\n", NULL };
-        return echo(argv);
-    }
-    */

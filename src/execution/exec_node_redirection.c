@@ -1,5 +1,4 @@
 #include "../parser/parser.h"
-
 #include "redirections/redirections.h"
 
 extern struct parse_ast *parser;
@@ -28,20 +27,22 @@ struct function redirs[] = { { ">", &redir_chevron_right },
                              { "<", &redir_chevron_left },
                              { "<&", &redir_chevron_left_and },
                              { ">&", &redir_chevron_right_and },
-                             { "<>", &redir_chevron_left_right },
-                             { "<<", &redir_double_chevron_left },
-                             { "<<-", &redir_double_chevron_left_dash } };
+                             { "<>", &redir_chevron_left_right } };
 
 int exec_node_redirection(struct ast_node *ast)
 {
+    struct ast_redir redir = ast->data.ast_redir;
+    // printf("redir: %s, right: %s\n", redir.redirection, redir.right);
+
     int res;
     for (unsigned i = 0; i < sizeof(redirs) / sizeof(*redirs); i++)
     {
-        if (!strcmp(ast->data.ast_redir.redirection, redirs[i].str))
+        if (!strcmp(redir.redirection, redirs[i].str))
         {
-             res = redirs[i].redir(ast);
-             break;
+            res = redirs[i].redir(ast);
+            break;
         }
     }
+
     return res;
 }

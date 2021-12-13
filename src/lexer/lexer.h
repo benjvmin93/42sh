@@ -24,6 +24,7 @@ struct lexer
     char *input; ///< The input data
     size_t pos; ///< The current offset inside the input data
     struct token *current_tok; ///< The next token, if processed
+    struct token *expecting_tok;
 };
 
 struct lexer *build_lexer(const char *input);

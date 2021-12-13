@@ -1,0 +1,65 @@
+if true; then echo yes; fi
+if echo ok; then echo yes; fi
+if then ok fi
+if fi
+if then
+if then echo ok; fi
+if true; echo ok; fi
+if true; then echo ok;
+fi
+then
+if                  echo ok;        then            echo yes            ;                               fi
+fi then
+if false; then echo false; elif true; echo YES; else echo not_reached; fi
+if true; then echo bar; elif echo foo; echo bar; else echo acu; fi
+if false; then echo false; elif true; then echo YES; else echo not_reached; fi
+if true; then echo bar; elif echo foo; then echo bar; else echo acu; fi
+if false; then echo bar; elif echo foo; fi
+if false; then echo false; else echo true; fi
+if true; then echo foo; fi if echo vrai; then echo bar; else echo acu; fi
+if true; then echo foo; fi; if echo bar; then echo bar2; else echo acu; fi
+if true; then echo 'a';
+if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi
+if ls; then echo ls works!; fi; if echo OK; then echo echo works!!; fi;
+if true; then if echo a; then echo b; fi; fi;
+if false; then if echo a; then echo b; fi; else echo TRUE; fi;
+if true; then if echo a; then echo b; fi; elif false; then echo no_reached; fi;
+if true; then if echo a; then echo b; fi elif true; then echo a; fi
+if true; then if echo a; then echo b; fi fi;
+if a=1; b=2; then echo $a $b; fi
+if a=5; b=3; c=1; then echo $a$b$c; 
+if true; then echo if; fi
+if true; then echo a; fi; if true; then echo b; fi
+if true; then echo a; fi; else echo a; fi
+if true; then echo fi; fi
+if true; then echo a; fi; if false; then echo b; else echo c; fi;
+if a=5; b=3; c=1; then echo $a$b$c; fi
+if true then echo a; fi
+if ; then echo a; fi
+if true; then echo a fi
+if true;
+if true; fi
+if true; else echo a; fi
+if true then echo a fi
+if true; then echo a; elif true; echo b; fi
+if true; then echo a; elif true; then echo b;
+if true; echo a; elif true; echo b; fi
+if true; then echo a; elif true; echo b
+if true; then echo a; elif true; echo b;
+if true; then echo a; elif true; echo b; echo b
+if true; then echo a; elif true; echo b; echo b; fi
+if true; then echo a; elif true; then echo b; echo b; fi
+if true; then > foo; else 
+if true; then > foo; elif then a=5;
+if true; then > foo; elif true; then a=5; fi
+if true; then > foo; elif true; then a=5;
+if false then > foo; elif true; then a=5; fi
+if false then > foo; else false; then if true; echo a; fi; fi
+if false then > foo; else false; then if true; echo a; fi fi
+if false then > foo; else false; then echo b; else true; a=6; fi; echo a;
+if false then > foo; else false; then echo b else true; a=6; fi; echo a;
+if false; then echo a; elif false; then echo a; echo b; elif true; then echo a; echo b; echo c; echo SUCCESS!; fi
+if false; then echo a; elif false; then echo a; echo b; elif true; then echo a; echo b; echo c; echo SUCCESS!; else echo ACU fi
+if false; then echo a; elif false; then echo a; echo b; elif true; then echo a; echo b; echo c; echo SUCCESS!; else echo ACU; fi
+if true; then echo a; echo "elif false; then echo a; echo b; elif true; then echo a; echo b; echo c; echo SUCCESS!; else echo ACU fi"; fi
+if false; then echo a; else echo foo; echo bar; echo acu; fi

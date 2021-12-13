@@ -3,12 +3,12 @@
 
 enum token_type
 {
-
     TOKEN_SEMICOLON, // ';'
     TOKEN_DOUBLE_SEMICOLON, // ';;'
     TOKEN_LINE_BREAK, // '\n'
     TOKEN_SIMPLE_QUOTE, // '''
     TOKEN_AND, // '&'
+    TOKEN_NOT, // '!'
     TOKEN_DOUBLE_AND, // '&&'
     TOKEN_PIPE, // '|'
     TOKEN_DOUBLE_PIPE, // '||'
@@ -37,7 +37,7 @@ enum token_type
     TOKEN_FOR, // 'for'
     TOKEN_WHILE, // 'while'
     TOKEN_UNTIL, // 'until'
-    TOKEN_DO,   // 'do'
+    TOKEN_DO, // 'do'
     TOKEN_DONE, // 'done'
     TOKEN_CASE // 'case'
 };

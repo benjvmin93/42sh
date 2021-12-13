@@ -28,7 +28,7 @@ struct parse_ast *parse_OK_2(struct lexer *lexer, struct token *tok)
 /**
  * input:  EOF | '\n' | list EOF | list '\n'
  */
-struct parse_ast *parse(struct lexer *lexer)
+struct parse_ast *parse(struct lexer *lexer, int index_error)
 {
     parser = init();
 
@@ -52,7 +52,8 @@ struct parse_ast *parse(struct lexer *lexer)
     parser = parse_list(lexer);
     if (parser->status != PARSER_OK)
     {
-        handle_parse_error(lexer);
+        token_free(lexer_pop(lexer));
+        handle_parse_error(lexer, index_error);
         return parser;
     }
     // once parsing the expression is done, we should have
@@ -78,6 +79,6 @@ struct parse_ast *parse(struct lexer *lexer)
     token_free(tok);
     // printf("%s\n", lexer->input + lexer->pos);
 
-    handle_parse_error(lexer);
+    handle_parse_error(lexer, index_error);
     return parser;
 }

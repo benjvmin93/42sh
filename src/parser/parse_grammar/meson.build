@@ -7,7 +7,7 @@ all_sources += files(
     'parse_error.c',
     'parse_func_dec.c',
     'parse_input.c',
-    'parse_linebreak.c',
+    'parse_annexe.c',
     'parse_list.c',
     'parse_pipeline.c',
     'parse_prefix.c',
@@ -22,5 +22,3 @@ all_sources += files(
     'parse_simple_cmd.c',
     'parse_do_group.c',
 )
-
-subdir('redirections')

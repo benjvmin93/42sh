@@ -1,0 +1,59 @@
+ki=42; echo \$ki
+oui=1; non=2; echo \$oui; echo \$non
+ki=2; echo \$ki; ki=56; echo \$ki
+a=5; b=10; echo \$a\$b
+c=10; echo \$c; d=100; echo \$d; c=\$d; echo \$c
+a=ACU; echo \$a; 
+a=ACU; echo \$a; b=42SH; echo \$b; b=\$a; echo \$b; 
+name=benji; echo user:$name;
+echo \$jenexistepas;
+echo \$jenexistepas; jenexistepas=JEXISTE; echo \$jenexistepas
+jesuistreslong=heloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo; echo \$jesuistreslong
+jaidesguillemets="Demain, dès l’aube, à l’heure où blanchit la campagne"; echo \$jaidesguillemets
+poeme="Demain, dès l'aube, à l'heure où blanchit la campagne,\\nJe partirai. Vois-tu, je sais que tu m'attends.\\nJ'irai par la forêt, j'irai par la montagne.\\nJe ne puis demeurer loin de toi plus longtemps.\\nJe marcherai les yeux fixés sur mes pensées,\\nSans rien voir au dehors, sans entendre aucun bruit,\\nSeul, inconnu, le dos courbé, les mains croisées,\\nTriste, et le jour pour moi sera comme la nuit.\\nJe ne regarderai ni l’or du soir qui tombe,\\nNi les voiles au loin descendant vers Harfleur,\\nEt quand j'arriverai, je mettrai sur ta tombe\\nUn bouquet de houx vert et de bruyère en fleur."; echo \$poeme;
+sautdeligne=ligne1\\nligne2; echo \$sautdeligne
+ki=42; echo \${ki}
+oui=1; non=2; echo \${oui}; echo \${non}
+ki=2; echo \$ki; ki={56}; echo \${ki}
+a=5; b=10; echo \${a}\${b}
+c=10; echo \${c}; d=100; echo \${d}; c=\${d}; echo \${c}
+a=ACU; echo \${a}; 
+a=ACU; echo \${a}; b=42SH; echo \${b}; b=\${a}; echo \${b}; 
+name=benji; echo user:${name};
+echo \$jenexistepas;
+echo \${jenexistepas}; jenexistepas=JEXISTE; echo \${jenexistepas}
+a=LOVE; b=ACU; echo we \$a \$b;
+a=5; b=10; c=20; d=30; e=40; f=50; echo \$a \$b \$c \$d \$e \$f
+a=5; b=10; c=20; d=30; e=40; f=50; echo \$a\$b\$c\$d\$e\$f
+string=value; value=string; echo \$string is not equal to \$value
+a="if true; then echo OK; else echo NOT; fi echo \$a
+a="if true; then echo OK; else echo NOT; fi"; echo \$a
+a='if'; echo $a; b="$a"; a="then"; echo $b $a
+a='if'; echo $a; b="$a"; a="then"; echo $b$a
+a='if'; echo $a; b="$a"; a="then"; echo \$b \$a;
+echo \$?;
+echo a; echo \$?;
+echo true; echo \$?;
+echo false; echo \$?;
+echo true; echo false; echo \$?;
+echo \$$;
+echo \$RANDOM;
+echo \$RANDOM; echo \$RANDOM; echo \$RANDOM;
+echo \$UID;
+echo \$OLDPWD;
+echo \$IFS;
+echo \$#;
+echo \$@;
+echo \$*;
+echo \$1; echo \$2; echo \$3;
+echo a; echo \$?;
+echo a; echo \$$;
+echo a; echo $RANDOM;
+echo a; echo \$UID;
+echo a; echo \$OLDPWD;
+echo a; echo \$IFS;
+echo a; echo \$#;
+echo a; echo \$@;
+echo a; echo \$*;
+echo a; echo \$1; echo \$2; echo \$3;
+for i in \$@; do echo \$i; done

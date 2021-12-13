@@ -22,31 +22,34 @@ char *token_process(char *token, struct lexer *lexer, size_t *i)
 
     return token;
 }
-/*
-// SUBFUNCTION TO CUT ';', '&' or '|'.
-void cut_token_1(struct lexer *lexer, char *token, size_t *i)
-{
-    token = token_process(token, lexer, i);
 
-    if (lexer->input[lexer->pos] && lexer->input[lexer->pos - 1] == lexer->input[lexer->pos])
-        token = token_process(token, lexer, i);
+char *lex_quote(char *token, struct lexer *lexer)
+{
+    struct clist *res = init_clist();
+
+    res = app_str(res, token);
+    free(token);
+
+    res = app_char(res, lexer->input[lexer->pos]);
+
+    char quote = '\"';
+    if (lexer->input[lexer->pos] == '\'')
+        quote = '\'';
+
+    lexer->pos++;
+    for (; lexer->input[lexer->pos] && lexer->input[lexer->pos] != quote;
+         lexer->pos++)
+    {
+        res = app_char(res, lexer->input[lexer->pos]);
+    }
+
+    res = app_char(res, lexer->input[lexer->pos++]);
+
+    char *str = strdup(res->data);
+    free_clist(res);
+
+    return str;
 }
-
-// SUBFUNCTION TO CUT '>'.
-void cut_token_2(struct lexer *lexer, char *token, size_t *i)
-{
-    token = token_process(token, lexer, i);
-    if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
-        token = token_process(token, lexer, i);
-}
-
-// SUBFUNCTION TO CUT '<'.
-void cut_token_3(struct lexer *lexer, char *token, size_t *i)
-{
-    token = token_process(token, lexer, i);
-    if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>')
-        token = token_process(token, lexer, i);
-}*/
 
 char *cut_token(struct lexer *lexer)
 {
@@ -64,12 +67,19 @@ char *cut_token(struct lexer *lexer)
 
     while (lexer->input[lexer->pos])
     {
+        if (lexer->input[lexer->pos] == '\''
+            || lexer->input[lexer->pos] == '\"')
+        {
+            token = lex_quote(token, lexer);
+            break;
+        }
         if (lexer->input[lexer->pos] == ' ')
             break;
 
         // CUT_TOKEN_1 SUBFUNCTION.
-        if (lexer->input[lexer->pos] == ';' || lexer->input[lexer->pos] == '&'
-            || lexer->input[lexer->pos] == '|')
+        if (lexer->input[lexer->pos] == ';'
+                || lexer->input[lexer->pos] == '&'
+                || lexer->input[lexer->pos] == '|')
         {
             if (*token)
                 break;
@@ -78,7 +88,6 @@ char *cut_token(struct lexer *lexer)
             if (lexer->input[lexer->pos]
                 && lexer->input[lexer->pos - 1] == lexer->input[lexer->pos])
                 token = token_process(token, lexer, &i);
-            //cut_token_1(lexer, token, &i);
             break;
         }
         if (lexer->input[lexer->pos] == '\n')
@@ -89,23 +98,14 @@ char *cut_token(struct lexer *lexer)
         }
 
         // CUT_TOKEN_2 SUBFUNCTION.
-        if (lexer->input[lexer->pos] == '>')
-        {
-            
-            token = token_process(token, lexer, &i);
-            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '|')
-                token = token_process(token, lexer, &i);
-            //cut_token_2(lexer, token, &i);
-            break;
-        }
-
-        // CUT_TOKEN_3 SUBFUNCTION.
-        if (lexer->input[lexer->pos] == '<')
+        if (lexer->input[lexer->pos] == '>' || lexer->input[lexer->pos] == '<')
         {
             token = token_process(token, lexer, &i);
-            if (lexer->input[lexer->pos] == '&' || lexer->input[lexer->pos] == '>')
-                token = token_process(token, lexer, &i);
-            //cut_token_3(lexer, token, &i);
+            if (lexer->input[lexer->pos] == '<'
+                || lexer->input[lexer->pos] == '>'
+                || lexer->input[lexer->pos] == '&'
+                || lexer->input[lexer->pos] == '|')
+                    token = token_process(token, lexer, &i);
             break;
         }
 
@@ -123,6 +123,7 @@ struct lexer *lexer_new(char *input)
     free(input);
     lex->pos = 0;
     lex->current_tok = token_new(cut_token(lex));
+    lex->expecting_tok = NULL;
     // lex->pos += strlen(lex->current_tok->data);
     return lex;
 }
@@ -131,6 +132,8 @@ void lexer_free(struct lexer *lexer)
 {
     if (lexer->current_tok)
         token_free(lexer->current_tok);
+    if (lexer->expecting_tok)
+        token_free(lexer->expecting_tok);
     free(lexer->input);
     free(lexer);
 }
@@ -187,4 +190,3 @@ int main(void)
     lexer_free(lexer);
 }
 */
-
