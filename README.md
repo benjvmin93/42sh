@@ -1,3 +1,9 @@
+# 42sh
+
+### Presentation
+
+42sh is probably the most famous project proposed by EPITA school. The goal was to implement a POSIX compliant shell in C that will implement every features of a classical shell. The purpose was mostly to deeply learn C language in all its facets.
+
 ### Build
 
 `meson setup {dirName}`
